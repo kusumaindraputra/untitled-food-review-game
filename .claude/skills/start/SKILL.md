@@ -111,12 +111,14 @@ The user needs creative exploration before anything else.
 #### If C: Clear concept
 
 1. Ask them to describe their concept in one sentence — genre and core mechanic. Use plain text, not AskUserQuestion (it's an open response).
-2. Acknowledge the concept, then use `AskUserQuestion` to offer two paths:
+2. Acknowledge the concept, then use `AskUserQuestion` to offer three paths:
    - **Prompt**: "How would you like to proceed?"
    - **Options**:
      - `Formalize it first` — Run `/brainstorm [concept]` to structure it into a proper game concept document
      - `Jump straight in` — Go to `/setup-engine` now and write the GDD manually afterward
-3. Show the recommended path:
+     - `Lean mode — just code` — Skip all planning docs. Run `/lean-dev-mode` to set up in 3 questions and go straight to implementation. Best for game jams, solo experiments, and proof-of-concepts.
+3. **If "Lean mode — just code":** tell them to run `/lean-dev-mode` and stop — do not show the standard path below. The lean dev loop is self-contained.
+4. Show the recommended path (for the other two options):
    **Concept phase:**
    - `/brainstorm` or `/setup-engine` — (their pick from step 2)
    - `/prototype` — throwaway concept build: validate the core idea is fun before designing (1–3 days)
@@ -231,7 +233,8 @@ Verdict: **COMPLETE** — user oriented and handed off to next step.
 
 - **User picks D but project is empty**: Gently redirect — "It looks like the project is a fresh template with no artifacts yet. Would Path A or B be a better fit?"
 - **User picks A but project has code**: Mention what you found — "I noticed there's already code in `src/`. Did you mean to pick D (existing work)?"
-- **User is returning (engine configured, concept exists)**: Skip onboarding entirely — "It looks like you're already set up! Your engine is [X] and you have a game concept at `design/gdd/game-concept.md`. Review mode: `[read from production/review-mode.txt, or 'lean (default)' if missing]`. Want to pick up where you left off? Try `/sprint-plan` or just tell me what you'd like to work on."
+- **User is returning (engine configured, concept exists)**: Skip onboarding entirely — "It looks like you're already set up! Your engine is [X] and you have a game concept at `design/gdd/game-concept.md`. Review mode: `[read from production/review-mode.txt, or 'lean (default)' if missing]`. Want to pick up where you left off? Try `/sprint-plan`, `/lean-dev-mode [feature]` (lean mode), or just tell me what you'd like to work on."
+- **Lean mode already active** (`production/lean-config.md` exists): Skip onboarding entirely — "Lean mode is active. Game: [name from lean-config] | Engine: [engine]. Run `/lean-dev-mode [feature]` to add a feature, or `/lean-dev-mode --status` to see what's been built."
 - **User doesn't fit any option**: Let them describe their situation in their own words and adapt.
 
 ---
