@@ -658,7 +658,170 @@ The game operates at two effective display scales:
 
 ## 6. Environment Design Language
 
-[To be authored]
+*This section serves the Visual Identity Statement: environment art exists only to make the feed feel real. The feed IS the environment. Ambiance tiles are not a world — they are evidence that a world exists behind the feed.*
+
+**Governing rule:** Environment only appears in three contexts: (1) ambiance tiles in the Visiting Phase, (2) card background impressions in the Planning Phase feed, (3) neutral feed backdrop between phases. No explorable world exists.
+
+---
+
+### 6.1 Ambiance Tile System
+
+The Visiting Phase panel is the only place with something resembling a scene — a composed arrangement of tiles behind the NPC and food photo. Tile-based composition is a production efficiency principle: a small shared library recombined per restaurant keeps total asset count feasible for a solo developer.
+
+**What tiles depict:** Fragments of architectural or material reality — a wall surface, a single decorative element, a glimpsed ceiling fixture, a counter edge. Each tile is a piece of evidence: visual archaeology the player reads as the restaurant's history without text.
+
+**Resolution:** 48×48px per tile. Aligns with NPC base sprite width for consistent composition grid. Displayed at native resolution — `texture_filter = NEAREST`, consistent with Section 5.4.
+
+**Visible area per visit:** 3–4 tiles wide × 2–3 tiles tall, arranged in a fixed compositional grid behind the NPC. Total: 6–9 tiles drawn from that restaurant's tile set.
+
+**Dithering (from Section 3):** Apply 1–2px dithering at the vertical seam where ambiance zone meets UI overlay layer. Within tiles: wall textures, wood grain, and plaster use 2–3px dithering clusters to simulate material texture. This is the primary form of surface detail — not painted complexity, but dithered material language.
+
+**How Warung Siang enters through tiles (from Section 4):**
+- Tier 3 (warung) tiles: Warung Siang at full saturation — primary carrier of the Visiting Phase warmth
+- Tier 2 (mid-range) tiles: Warung Siang at 60–70% saturation
+- Tier 1 (high-end) tiles: Warung Siang at 20–30% — warmth as trace, not statement
+
+The Visiting Phase palette shift reads differently per tier. Visiting a warung feels noticeably warmer than visiting a fine dining restaurant — produced entirely through tile color, no UI behavior change required.
+
+---
+
+### 6.2 Restaurant Visual Identity Per Tier
+
+Each tier must be immediately distinguishable by tile composition alone — before the player reads any name, price, or description.
+
+**Tier 1 — Fine Dining / High-End**
+*Visual thesis: This place spent money on surfaces. Every surface says so.*
+- Architecture: Clean plaster or tile walls with deliberate hue (off-white, sage, warm grey). Geometric tile patterns. Pendant lighting at tile-top edge.
+- Texture: Smooth and regular. Dithering minimal — highlight edges only. Uniformity is a luxury.
+- Prop density: Low. 1–2 props per tile with deliberate space between them.
+- Materials: Cloth napkins, ceramic/glass surfaces, dark-stained wood, 2px brushed metal accent. No raw/unfinished materials.
+- Color: Warung Siang at 20–30% saturation. Cool-neutral or warm-grey dominant.
+- *Pixel guidance:* If you can see grain or plaster texture across most of the tile, it is not Tier 1. Save dithering budget for lower tiers.
+- *Pillar 4:* Restraint itself is the soul. "We have been doing this long enough to remove everything unnecessary."
+
+**Tier 2 — Mid-Range / Standard Restaurant**
+*Visual thesis: This place tried, and you can see the trying.*
+- Architecture: Painted walls with visible age — minor crack, paint seam. Soft yellow or warm-white with slightly uneven dithering at paint edges. Posters or framed certificates at tile edges.
+- Texture: Moderate dithering. Paint edges, tile grout lines (4px apart, 1px dark), subtle stain gradients.
+- Prop density: Moderate. 2–3 props per tile. Condiments in cluster (1–2px bottles), framed menu, seasonal decoration.
+- Materials: Formica/laminate table surfaces (flat color, hard edge). Plastic chairs at tile bottom. Fluorescent tube at tile top as thin white rectangle. Stainless steel counter edge.
+- Color: Warung Siang at 60–70% saturation. Fluorescent tube provides a cooler value contrast at the upper tile register.
+- *Pillar 4:* The soul of Tier 2 is in the trying — the framed award slightly crooked, the wall repainted but not perfectly. Every imperfection is legible data about a business that cares but operates under constraint.
+
+**Tier 3 — Warung / Street Food**
+*Visual thesis: Every surface has a history of use, and the history is useful.*
+- Architecture: Exposed/stained concrete, raw wood with visible grain, corrugated metal or plastic tarpaulin at tile edge. No architectural finish — the material IS the surface. Layers of different eras visible.
+- Texture: Maximum dithering budget. Concrete, wood grain, rust marks, grime at corners — all via 2–3px dithering clusters.
+- Prop density: Dense. 3–4 props per tile. Thermal flask, hanging plastic bags (2px silhouettes), stacked bowls, cable via tape, a fan at tile edge.
+- Materials: Unpainted concrete block (dithered grey with warm undertone), raw/painted plywood, plastic resin chairs (single flat color, 3px), aluminium implements at counter height.
+- Color: Warung Siang at full saturation (28–38°). Open-air afternoon light as dominant source — warm, horizontal, slightly overexposed at right tile edge.
+- *Pillar 4:* The most visible history of any tier — layers of repair, objects moved and left where they landed, surfaces cleaned ten thousand times.
+- *Pillar 1:* Visiting a warung has economic weight. Its margins are thin; a bad review carries outsized consequence relative to revenue. The tile density and warmth should create sympathy before the checklist begins.
+
+---
+
+### 6.3 Environmental Storytelling Guidelines
+
+**Core constraint:** No scrolling tooltips, no lore text in tiles, no environmental popups. Every story detail delivered through what a 48×48px tile at 16 colors can render.
+
+**Maximum density rule:** No single tile tells more than one story. Each tile carries one signal — either age OR newness OR success OR struggle OR character-specific. Tile combinations tell compound stories; individual tiles provide a single, legible note.
+
+**Signal categories:**
+
+*Age ("this place has been here 20 years"):*
+- Stain gradients at wall-floor seam (dithered brown-grey, bottom 6px of adjacent wall tile)
+- Mismatched tile repair — 3×3px area within a regular tile pattern using a slightly different value
+- Paint layers at door frame: 2px edge of previous color beneath current
+- Calendar showing a year (single digit sufficient at this resolution)
+- Patina on metal: dithered rust-orange at fixture corners only, not broadly
+- Worn counter edge: leading edge 1px lighter than counter surface — polish from repeated contact
+
+*Newness ("this opened recently"):*
+- No staining at wall-floor seam
+- Tile grout visibly white, not grey
+- Single printed menu in new plastic holder (2×4px, Layar Pagi highlight)
+- Chairs all same color (older establishments accumulate variation)
+- QR code on wall (4×4px abstract representation)
+
+*Success ("this place is doing well"):*
+- Small potted plant at tile edge (3px of organic green at corner)
+- Wall art that is decorative, not an achievement certificate
+- Updated equipment visible: newer-model appliance silhouette, LED strip instead of tube light
+
+*Struggle ("business is difficult"):*
+- Empty display case (case present, interior dithered grey — no product)
+- Faded promotional material (color temperature shifted warm-grey vs full saturation)
+- Broken light (fluorescent tube with missing pixel at center, uneven brightness dithering)
+- Condiment bottles nearly empty (pixel-level fill level visible in bottle silhouette)
+
+*Character-specific ("the owner's personality lives in this space"):*
+Each restaurant's object signature tile must contain one character-specific detail aligned with the NPC's design. If the owner wears a baseball cap: a row of caps on wall hooks (3px each). These connections should be discoverable — not labeled, not highlighted.
+
+*Pillar 4 — Restoran Punya Jiwa:* The soul is not in the menu. It is in the broken light nobody replaced yet, and the calendar from 2018 still on the wall because removing it would feel wrong.
+*Pillar 3 — Reviewer Bukan Dewa:* Environmental storytelling gives enough information to feel sympathy or suspicion before the checklist — then forces rating by criteria anyway. The broken light doesn't change the food score.
+
+---
+
+### 6.4 Phase Background Contexts
+
+**Non-Visiting phases = feed contexts.** The player is at a screen, not in a restaurant. Background serves feed aesthetic, not architectural atmosphere. No ambiance tiles appear outside the Visiting Phase.
+
+**Planning Phase:** Layar Pagi (#F5F7FA). No environmental element. Optional: 2–3px random single-pixel scatter at 4% Aspal Malam opacity, tiled 64×64px — produces subtle "phone screen grit." MVP-defer unless pure white reads too flat.
+
+**Publishing Phase:** Layar Pagi pushing toward pure white. No new environmental element. Screen-grit disappears here (brightness increase removes it) — correct, as Publishing is the most overexposed phase.
+
+**Bill Paying Phase:** Layar Pagi at clinical near-white. Desaturated food photo thumbnails at periphery (same assets, reduced size/saturation — no new production). Optional: 4–6% brightness darkening at four screen corners as a static 8px feathered overlay — "layar yang redup karena terlalu lama dilihat." Defer to Vertical Slice pending full UI layout confirmation.
+
+**Main Menu / Between Runs:** Layar Pagi with +4 to +6° warm shift. Archived food photo thumbnails (15% opacity warm tint overlay). Optional: single desaturated ambiance tile from most recently visited restaurant at 20–25% opacity behind the "Start Run" button zone — grounds the retrospective mood from Section 2.6. Defer to Vertical Slice.
+
+*Pillar 2 — Rutinitas yang Menyerap:* The near-absence of environmental art during non-Visiting phases is intentional. When a restaurant ambiance tile appears, the player knows they are in Visiting Phase — without a UI label.
+
+---
+
+### 6.5 Asset Reuse Strategy
+
+**Three-pool system:**
+
+| Pool | Contents | Count | When produced |
+|---|---|---|---|
+| Unique tiles | Wall signature + object signature per restaurant | 30 tiles (2 × 15) | Per restaurant |
+| Tier shared pool | 6 tiles per tier × 3 tiers | 18 tiles | Once per tier |
+| Universal shared pool | Ceiling strips, neutral floor edges, counter base surfaces | 10 tiles | Once |
+
+**Total: 58 tiles.** At ~1.5–2 hours per tile, approximately 85–115 hours of tile production. Feasible within a 3–5 week environment production window at 4–6 hours per day.
+
+**Variation within shared tiles (zero new production):**
+1. **Palette swap:** Same tile re-exported with different plaster/surface hue (2px hue shift). Each restaurant in a tier can have a distinct wall tone from the same texture pattern.
+2. **Horizontal flip:** For tiles without directional elements (window light, posters), flipping doubles visual variety at zero cost. Never flip tiles with directional props.
+
+**Tiles that must NOT be shared:** Wall signature tile, object signature tile, any tile containing character-specific storytelling detail from Section 6.3.
+
+**MVP shortcut:** All MVP restaurants are Tier 3. Only Universal pool (10) + Tier 3 shared (6) + 10 unique tiles (2 per 5 restaurants) = **26 tiles for MVP.** Tier 1 and Tier 2 tile sets defer entirely to Vertical Slice.
+
+**Animation budget: zero.** All ambiance tiles static. Movement would compete with the NPC's 2-frame breathing loop for attention — and the NPC loop is itself optional in MVP.
+
+**Tile naming convention:**
+- Unique: `env_[restaurant-slug]_wall_48.png` / `env_[restaurant-slug]_object_48.png`
+- Tier shared: `env_tier[1/2/3]_[surface]_[variant]_48.png` (e.g. `env_tier3_wall_plaster_a_48.png`)
+- Universal: `env_shared_[surface]_[variant]_48.png` (e.g. `env_shared_ceiling_strip_48.png`)
+
+*Pillar 2:* The shared tile pool is also a narrative consistency system. The same plaster tile appearing across multiple Tier 3 restaurants creates subconscious recognition — these places exist in the same world. Repetition is atmosphere, not laziness.
+
+---
+
+### Environment Consistency Check
+
+| Decision | Pillar served | Solo-dev achievable? |
+|---|---|---|
+| 48×48px tiles, fixed grid | — (technical efficiency) | Yes — consistent with NPC sprite unit |
+| 2 unique tiles per restaurant + shared pools | P4 — identity without full unique set | Yes — 58 tiles total, phased |
+| Tier warmth ladder (T3 full / T2 60-70% / T1 20-30%) | P4 — soul in material temperature | Yes — one palette rule per tier |
+| Dithering at tile borders and surface textures | Section 3 — organic content vs angular UI | Yes — 2–3px dithering, no filter |
+| Max one storytelling signal per tile | P4, P3 — legible, not illustrated | Yes — discipline rule, reduces overwork |
+| No ambiance tiles in non-Visiting phases | P2 — feed IS the environment | Yes — less production, not more |
+| Object signature tile has character-specific detail | P4 — soul through owner detail | Yes — 1 discoverable detail per restaurant |
+| Zero animation | P2 — contemplative stillness | Yes — eliminates entire production category |
+| MVP = Tier 3 only (26 tiles) | Scope — validates loop before full art | Yes — defers 32 tiles to Vertical Slice |
 
 ---
 
