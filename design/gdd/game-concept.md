@@ -49,33 +49,29 @@ kamu temui lagi di run berikutnya, dengan cara yang tidak selalu kamu duga.
 
 ## Visual Identity Anchor
 
-**Arah Visual: "Buku Catatan yang Hidup"**
+**Arah Visual: "Feed Seseorang yang Mencoba Bertahan Hidup dari Kontennya"**
 
-*One-line rule*: Setiap elemen UI dan environment terasa seperti halaman buku
-catatan seorang reviewer sungguhan — coretan, stempel, foto polaroid, dan
-tanda centang.
+*One-line rule*: Setiap elemen UI dan environment harus terasa seperti feed
+sosial media yang dikelola sendiri oleh seorang kreator independen — personal,
+sedikit DIY, nyata — bukan produk perusahaan tech, dan bukan buku catatan fisik.
 
-**Prinsip Visual:**
+**Prinsip Visual** (dikembangkan penuh di `design/art/art-bible.md`):
 
-1. **Pixel art dengan karakter yang expressive** — karakter NPC punya idle
-   animation yang mencerminkan mood mereka. Chef yang bangga berdiri tegak.
-   Owner yang tertekan mengusap tangan ke celemek.
-   *Design test*: "Kalau debating antara animasi yang lebih complex vs karakter
-   yang lebih banyak — prioritaskan ekspresi karakter yang sudah ada."
+1. **Estetika Feed, Bukan Estetika Kertas** — Layout UI mengacu pada struktur
+   sosial media: grid foto, story format, engagement counter.
+   *Pillar*: Rutinitas yang Menyerap
 
-2. **UI sebagai artefak fisik** — checklist dievaluasi dengan tanda centang
-   atau silang yang terasa ditulis tangan. Rating bintang 'dicap' seperti
-   stempel. Budget tracker terlihat seperti pembukuan nota.
-   *Design test*: "Kalau ada elemen UI yang terasa seperti software, bukan
-   seperti buku catatan — redesign."
+2. **Stamp Digital, Bukan Stempel Fisik** — "Stamp" sebagai visual tetap dipakai
+   tapi selalu sebagai digital overlay: badge, emoji di atas foto, label "VIRAL"
+   atau "REVIEWED" sebagai overlay transparan.
+   *Pillar*: Reviewer Bukan Dewa
 
-3. **Warna hangat dengan aksen merah dan kuning** — palet dominan warm off-white
-   dan cokelat muda (seperti kertas lama), dengan merah untuk highlight negatif
-   (pengeluaran, review buruk) dan kuning untuk highlight positif (viral, income).
-   *Design test*: "Kalau warna baru terasa 'dingin' atau digital — reject."
+3. **Foto Makanan sebagai Mata Uang Visual** — Setiap restoran direpresentasikan
+   pertama-tama sebagai foto makanannya. Kualitas foto mencerminkan kelas restoran.
+   *Pillar*: Restoran Punya Jiwa
 
-**Color Philosophy**: Dunia ini terasa seperti arsip hidup seorang reviewer,
-bukan aplikasi tech startup.
+**Color Philosophy**: Dikaji di art bible — arah jauh dari warm paper tones,
+menuju estetika sosial media kreator independen.
 
 ---
 
@@ -283,7 +279,7 @@ memperdalam cerita restoran yang sudah ada — pilih yang kedua."
 | ---- | ---- |
 | **Recommended Engine** | Godot 4.6 — lightweight, cocok untuk 2D management, export ke PC sangat clean |
 | **Key Technical Challenges** | Balance ekonomi (roguelike balance butuh banyak playtest); procedural restaurant pool per run |
-| **Art Style** | Pixel art 2D — estetik "buku catatan hidup", warm color palette |
+| **Art Style** | Pixel art 2D — estetik social media feed dari kreator independen; color palette dikaji di art bible |
 | **Art Pipeline Complexity** | Medium — custom pixel art per restoran, karakter NPC dengan ekspresi, UI sebagai artefak fisik |
 | **Audio Needs** | Moderate — ambient restaurant sounds, UI feedback (stamp, checkmark, coins), mungkin 2-3 tracks musik ambient |
 | **Networking** | None |
