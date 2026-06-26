@@ -466,7 +466,193 @@ Food photos are painted at nominal saturation and left alone. **The UI shifts ar
 
 ## 5. Character Design Direction
 
-[To be authored]
+*This section serves the Visual Identity Statement: characters exist inside a social media feed — they are the faces behind the posts, not heroes in a narrative. Every character design decision must read at feed-card thumbnail scale before encounter panel scale.*
+
+### Production Priority Order
+
+1. Player avatar (24×24px) + hand/phone sprite (48×32px) — **MVP blocker**
+2. Restaurant Owner base sprite (32×48px) — **MVP blocker**
+3. Encounter panel compositions + Chef + Rival Reviewer sprites — **Vertical Slice**
+4. Per-character headwear/accessory variant swaps — **Alpha**
+
+Do not produce anything in priority 3–4 until the MVP checklist loop is validated.
+
+---
+
+### 5.1 Player Representation — The Reviewer as Absence
+
+The player has no protagonist sprite. Three player-presence sprites replace a character sheet:
+
+**5.1.1 Feed Avatar (24×24px circular crop)**
+
+The player's persistent on-screen identity — same position as a profile photo in a social media app.
+
+- Canvas: 24×24px, 2px circular mask with 1-pixel partial alpha at edge (simulates circular crop, not hard rectangular mask)
+- Content: Upper face only, eye level to top of head, slightly off-center — an amateur profile photo taken in bad lighting, not a portrait. No mouth visible.
+- Color constraint: Layar Pagi + Aspal Malam only. No Warung Siang, no Notifikasi. The reviewer has no brand color.
+- Pixel budget: 6–8 colors including transparency. One additional low-saturation skin tone permitted (15–20 HSV saturation).
+- Game Over state: BANGKRUT badge composited on top by UI layer — the avatar sprite is not redrawn.
+- *Pillar 3 — Reviewer Bukan Dewa:* The avatar is low-resolution, slightly amateur, unimpressive. The reviewer's power is not visible in their face.
+
+**5.1.2 Hand/Phone Sprite (48×32px, landscape)**
+
+The closest thing to a protagonist sprite — appears in the lower portion of the Visiting Phase screen.
+
+- Canvas: 48×32px. Hand enters from bottom-left corner, phone screen facing the food photo above (mimicking the gesture of taking a food photo).
+- Content: Hand + phone only. No wrist jewelry, no arm beyond 8px. Phone is identifiable as a phone (rectangular, simple bezel, no brand). Phone screen shows a 2-color silhouette of the current food photo — not a detailed thumbnail.
+- Color: Same low-saturation skin tone as the avatar. Phone body in Aspal Malam. Phone screen may carry one simplified warm color if the food photo is warm-tier.
+- Animation: **0 frames — static sprite.** Stillness matches the contemplative mood of Section 2.2 (Visiting Phase). The stillness is a feature, not a limitation.
+- Pixel budget: 8–10 colors.
+- *Pillar 2 — Rutinitas yang Menyerap:* The hand-and-phone is the gestural anchor of the monthly ritual. Every visit begins and ends with this same compositional element.
+
+**5.1.3 Back-of-Head Sprite — Deferred to Vertical Slice**
+
+Not needed for MVP. If produced: 24×40px, rear view, dark hair against restaurant ambient background. No face details, neutral Aspal Malam clothing, no distinguishing features. Deliberate genericness serves Pillar 3.
+
+---
+
+### 5.2 NPC Archetype Design Rules
+
+**Shared production rule:** Design all NPC sprites at 32×48px base. Verify silhouette reads at this size before adding detail. Never design encounter-panel-first.
+
+**Shared color constraints:**
+- NPC clothing/accessories may use Warung Siang sparingly (world color, not platform color), but at **70% of food photo tile Warung Siang saturation** — NPCs must not compete with food photography for visual hierarchy.
+- Three pre-approved skin tones across the NPC pool: (a) warm medium-dark, (b) warm medium, (c) cool light. Each character assigned one tone for consistency.
+- Notifikasi blue (255–265°) never appears on NPC sprites — it is the platform's color.
+- Saldo Merah on NPC sprites: reserved for post-Alpha meta-progression indicators only.
+
+---
+
+**Restaurant Owner / Warung Operator**
+
+*Section 3 establishes: wide/grounded silhouette, headwear as 4px differentiator.*
+
+Proportion (32×48px base):
+- Height: 38–42px visible body. Width at shoulders: 18–20px (widest NPC archetype).
+- Head-to-body ratio 1:3 (head ≈ 12px). Center of gravity in lower third.
+
+Headwear (primary differentiator — permanent per character, never changes):
+- Types: (a) kopiah/peci — flat-topped 4px protrusion, formal; (b) bandana at forehead — wider asymmetric; (c) baseball cap — horizontal brim 4px left or right; (d) chef's cloth as bandana — distinct fold from type b; (e) no headwear — reserved for 1–2 "anomalous" memorable owners.
+- Headwear carries one high-saturation accent color outside the named palette. This is how individual owners become visually memorable within the archetype.
+
+Expression range (sprite swap, not animation):
+- 2 required: Neutral/Guarded + Pleased/Open. Tense/Closed optional.
+- Body sprite static and reused. Only the head sprite swaps. This halves expression production cost.
+- No mouth or blink animation. Eyebrow angle and shoulder posture carry expression.
+
+Clothing: All owners wear a white (Layar Pagi) apron with Aspal Malam trim — the one shared uniform element. Shirt under apron varies per individual. No logo text on clothing.
+
+*Pillar 4 — Restoran Punya Jiwa:* The owner's grounded stance says: this place has been here longer than you have been reviewing it.
+
+---
+
+**Chef**
+
+*Section 3 establishes: tall/narrow silhouette, active hand state as differentiator.*
+
+Proportion (32×48px base):
+- Height: 44–46px (tallest archetype). Width at shoulders: 12–14px.
+- Head-to-body ratio 1:4 (head ≈ 10px). Forward tilt of 2–3px in shoulders — the chef is always mid-task.
+
+Hand state (primary differentiator — fixed per encounter):
+- (a) Ladle/spoon held forward — production cooking, high confidence
+- (b) Cloth over arm, one hand on hip — between tasks, evaluating
+- (c) Both hands raised — rare, specific encounter moment (argument, revelation). Not an idle state.
+
+Expression range: Same economy as owners — 2 base states, body static, head swaps. Chef's toque/cloth cap is the same across all chefs — no headwear variation (hand state is the differentiator, not the hat).
+
+Clothing: White chef's coat (Layar Pagi body, Aspal Malam collar/button line) identical across all chefs at MVP. One accent thread on sleeve edge per individual. No apron — aprons belong to owners, distinguishing the archetypes at thumbnail scale.
+
+Context: Chefs appear primarily in the background of kitchen-context panels or as secondary figures. Design for legibility at 60% screen coverage, not full-frame.
+
+*Pillar 4:* Perpetual chef activity = evidence the restaurant's soul lives in process. *Pillar 3:* You can evaluate what comes out of the kitchen; you cannot direct what happens inside it.
+
+---
+
+**Rival Reviewer**
+
+*Section 3 establishes: mirror of player archetype, visible face, forward lean, phone angle as differentiator.*
+
+Proportion (32×48px base):
+- Height: 40–44px. Width: 14–16px. Forward lean 3–4px from heel line — posture provides visual mass beyond width.
+- Head-to-body ratio 1:3.5. **The rival has a visible face; the player does not.** This is deliberate.
+
+Phone angle (primary differentiator):
+- Eye level: actively assessing, threat present (same restaurant as player)
+- Hip level, screen outward: present but not focused (background state)
+
+Expression: Neutral/Focused + Smug/Noticed. Rivals have more expressive mouths than owners or chefs — a visible smirk or flat line communicates character. Mouth is primary; eyebrows secondary.
+
+Clothing: Variable per individual. One shared marker across all rivals: a small lanyard/press credential (2×3px rectangle in Aspal Malam with one accent pixel) at the chest. Visible at encounter panel scale, not thumbnail scale — thumbnail differentiation relies on phone angle + forward lean alone.
+
+*Pillar 3 — Reviewer Bukan Dewa:* The rival's visible face is the most direct visual statement of this pillar. They are doing what you do. They have a face. You don't.
+
+---
+
+### 5.3 Expression and Pose Style
+
+**Global rule: sprite swap, not animation.**
+
+Body sprite is static and reused. Head is a separate sprite at a fixed anchor. Expression changes between player interactions, not during them — consistent with Section 2's meditative rhythm.
+
+**Idle animation:** 2-frame breathing loop (frame A: rest; frame B: shoulders +1px up, head -1px) at 0.8–1.2 second cycle. Optional in MVP — static NPCs are acceptable.
+
+**Exaggeration level:** Moderate. Reference: Papers Please NPC design — caricatures with functional emotional reads, not portraits. Eyebrow angle is the primary expression tool. Eye shape is secondary. Mouth tertiary (rivals only at thumbnail scale).
+
+**Pixel-level guidance:**
+- Eyes at 32×48px: 3×2px. At encounter scale: 5×3px with 1-pixel highlight (painted into static sprite, not animated).
+- Eyebrows: 4px wide, single color. Three states: horizontal (neutral) / angled inward-up (tense/proud) / angled outward-down (open/tired).
+- Mouth at 32×48px: not shown on owners or chefs. At encounter scale (5px wide): flat (neutral) / slight curve (positive) / tight corners (tense).
+- Skin pixel count at 32×48px: ≈40–60 pixels. Fewer, larger shapes read better than noisy detail.
+
+---
+
+### 5.4 LOD Philosophy — One Sprite, Two Display Scales
+
+The game operates at two effective display scales:
+
+**Card thumbnail scale (32×48px portrait within feed card):** Communicates archetype only — not emotion, not story. Hat silhouette, hand state, phone angle must read here. This is the canonical sprite.
+
+**Encounter panel scale (≈80×128px display, 2.5× nearest-neighbor from base sprite):** Same sprite rendered larger. The visible pixel grid is intentional — it is the visual language of deliberate evaluation. No additional detail painted at encounter scale.
+
+*Technical note (Godot 4.6):* Use `texture_filter = NEAREST` (or CanvasItem equivalent) for pixel-perfect scaling. The encounter panel adds a painted backdrop (ambiance tiles + compositional frame) — the NPC sprite itself is the same asset at both scales.
+
+*Pillar 2 — Rutinitas yang Menyerap:* The player's eye learns archetypes at thumbnail scale first. Recognition at encounter scale is immediate — routine has primed the read.
+
+---
+
+### 5.5 Encounter Panel Visual Treatment
+
+**Framing:** Half-body (cropped at waist). Head and torso visible. This matches social media content language for restaurant/counter subjects and reduces visible sprite area by 40% without information loss.
+
+**Composition offset (never centered):**
+- Owner encounters: NPC at 65–70% from left
+- Chef encounters: NPC at left 20–30% (kitchen doorway, partially occluded)
+- Rival encounters: NPC at 30% from left (approaching from left, forward lean direction reinforces movement)
+
+**Screen zone rule:** Food photo (center/top) / NPC (lower-left or lower-right) / Checklist UI (opposite side from NPC). These three zones do not overlap.
+
+**No portrait border, no vignette.** NPC exists in scene space as a figure, not as a character card. Consistent with Section 3's "no decorative geometry" rule.
+
+**Expression on checklist confirmation:** When the player confirms a criterion that affects the NPC (e.g., marking Service as poor), the NPC head sprite swaps to Tense expression immediately — no delay, no animation. Abruptness is correct; decisions have immediate weight.
+
+**Empty stool:** Some Tier 3 warung encounters have no staffed counter. The NPC zone shows an environmental tile (empty stool, cloth over counter) instead of a sprite. Absence communicates as meaningfully as presence.
+
+*Pillar 4:* Encounter panel is where the restaurant's soul is present (a face) or withheld (an empty stool). *Pillar 1:* NPC expression swap on checklist confirmation makes every criterion feel consequential beyond its number.
+
+---
+
+### 5.6 Character Consistency Check
+
+| Decision | Serves Section 1 (Feed)? | Serves a Pillar? | Solo-dev producible? |
+|---|---|---|---|
+| No protagonist sprite; avatar + hand/phone | Yes — profile photo + user gesture | P3 — no imposing hero face | Yes — 2 assets replace full character sheet |
+| Archetype readable at 32×48px | Yes — grid card readability | P2 — routine primes recognition | Yes — silhouette-first discipline |
+| Sprite swap for expressions | Yes — static post logic | P2 — stillness = contemplation | Yes — halves expression production cost |
+| One sprite, two scales (nearest-neighbor) | Yes — pixel aesthetic intentional | P2 — no resolution break in routine | Yes — zero additional art per scale |
+| Half-body framing, offset, no border | Yes — across-the-counter feed content | P4 — figure in their place | Yes — no border art needed |
+| NPC at 70% Warung Siang saturation | Yes — NPCs serve food photos, not compete | P4 — food photo hierarchy T1 | Yes — one saturation rule per archetype |
+| Empty stool for unmanned encounters | Yes — absence as content | P4 — soul can be withheld | Yes — 1 environmental tile reused |
 
 ---
 
