@@ -295,7 +295,172 @@ In a UI-dominant game, hierarchy is achieved through **size delta**, not depth o
 
 ## 4. Color System
 
-[To be authored]
+*This section serves the Visual Identity Statement: the palette distinguishes "platform colors" (what the feed infrastructure uses) from "world colors" (what food and restaurants bring to the screen). Saturation is the single lever that drives phase transitions — no separate per-phase palette is needed.*
+
+---
+
+### 4.1 Primary Palette
+
+Six named colors plus one wild card. Six is the minimum for this game's semantic needs — fewer forces color overloading; more creates management debt for a solo developer. Every color is defined at **nominal saturation** (the value you paint with) and its **collapsed saturation** behavior (what it becomes when the global saturation lever drops during Bill Paying / Game Over).
+
+---
+
+**1. Layar Pagi** ("Morning Screen")
+Hue: Blue-white, 200–210°, very low saturation at nominal (10–15%).
+Role: Base background tone for all UI panels. Screen-white with a slight cool cast — not warm off-white. Every piece of content sits on top of it.
+Most prominent in: Planning Phase (dominant), Bill Paying (returns as clinical presence).
+At low saturation: Becomes near-pure white. Correct — reckoning phases should feel like a stark screen, not a warm page.
+
+**2. Aspal Malam** ("Night Asphalt")
+Hue: Dark cool-neutral, 215–225°, high value contrast with Layar Pagi.
+Role: Primary text color and UI boundary color. All body text, labels, checklist item text, financial figures, inactive UI states. Screen dark, not ink dark.
+Most prominent in: All phases equally. Infrastructure color.
+At low saturation: Flat cold grey. Correct for Bill Paying — the UI reads as drained and clinical.
+
+**3. Warung Siang** ("Midday Warung")
+Hue: Warm amber-orange, 28–38°. Food-warm, not paper-warm. *(Distinction: paper-warm = 40–55°; food-warm = 28–38° — the color of rendered fat, caramelized sugar, afternoon warung light.)*
+Role: **World color only — not a UI color.** Used in food photo tiles, restaurant ambiance background tiles, and Visiting Phase ambient warmth. Never appears in buttons, labels, or UI chrome. When Visiting Phase "warms the palette," it is these content tiles that carry the shift, not the UI.
+Most prominent in: Visiting Phase, Publishing Phase warm-up.
+At low saturation: Muddy sand-beige. The only primary color that looks wrong when drained — which is correct. During Bill Paying, Warung Siang disappearing signals the comfortable food-focused part of the month is over.
+
+**4. Notifikasi** ("Notification")
+Hue: Electric blue-violet, 255–265°, high saturation.
+Role: **Platform color — interactive only.** Tap targets, selected states, the "+" create content button on Main Menu, follower count highlights, any element that means "this is actionable." This color belongs to the platform, not to the player.
+Most prominent in: Planning Phase (restaurant selection), Publishing Phase (post button), Main Menu.
+At low saturation: Flat grey-blue, nearly indistinguishable from Aspal Malam. During Bill Paying, interactive affordances should effectively disappear — the lever achieves this automatically.
+
+**5. Saldo Merah** ("Red Balance")
+Hue: Pure red, 355–5°. Clinical red — no orange shift, no pink shift. Banking app error red.
+Role: Financial danger and the BANGKRUT badge. The most semantically loaded color in the palette — means one thing: the system is warning you.
+Most prominent in: Bill Paying (danger state), Game Over (BANGKRUT badge).
+At low saturation: **Exempt from the global saturation lever.** BANGKRUT badge stays at full saturation even when the rest of the screen is at 5%. Treat as a non-desaturated overlay on a separate UI layer that bypasses any scene-level saturation shader.
+
+**6. Amber Kritis** ("Critical Amber")
+Hue: Warm yellow-amber, 42–50°. Distinct from Warung Siang (orange-amber) — further toward yellow, the hue humans associate with "warning but not yet stopped."
+Role: Financial mid-state. When balance is tight but not terminal, financial figures render in Amber Kritis. Also the color of a published review with no engagement yet — the waiting color.
+Most prominent in: Bill Paying (warning state), post-Publishing pre-engagement hold.
+At low saturation: Pale yellow, nearly invisible on Layar Pagi. See colorblind backup in Section 4.5.
+
+**Wild card — Foto Hijau** ("Photo Green")
+Hue: Muted sage-green, 140–150°. Intentionally lower saturation than other primaries at nominal (40–50%). Not bright UI green — the color of a garnish, banana leaf under a dish, healthy produce.
+Role: Financial safety (balance number when comfortable), positive review outcome, "safe to proceed" states. Lower saturation at nominal prevents it from reading as triumphant — a safe balance means you get to play another month, not that you've won.
+Most prominent in: Bill Paying (safe balance state), Planning Phase (successfully-visited restaurant indicators).
+At low saturation: Flat cool grey, indistinguishable from Aspal Malam. See colorblind backup in Section 4.5.
+
+---
+
+### 4.2 Semantic Color Vocabulary
+
+Specific to the food reviewer / social media world — not generic UI semantics.
+
+**RED (Saldo Merah) = The platform has flagged you.**
+Not abstract "danger" — red means the system has formally notified you of a problem. Bank notification red. Overdue payment red. Account suspension red. It arrives top-down from a system with power over you. This is why BANGKRUT uses the same red as a negative balance — both are the platform asserting authority over the player's account.
+
+**AMBER (Amber Kritis) = You have one more chance to scroll past this.**
+The yellow-amber of a notification that has been seen but not addressed. Not yet forcing action, but not ignorable. Also carries the specific anxiety of a post with no engagement — held breath before the algorithm decides.
+
+**GREEN (Foto Hijau) = Your content is performing and your table is set.**
+Not "you won" — "you are nourished and stable." Safe balance in Cicip & Catat means you get another month, not victory. The muted saturation prevents it from reading as triumphant.
+
+**BLUE (Notifikasi) = The platform wants your attention.**
+Every blue element is a place where the player can take action. Blue is the platform's color, not the player's. The player's color is the absence of a dominant color — the reviewer is represented by Layar Pagi (neutral screen-white).
+
+**NEAR-WHITE (Layar Pagi) = Feed at rest.**
+Background that makes content visible. The only time it has meaning is when it is taken away — when it shifts toward Aspal Malam territory, the feed has gone dark and the player is accounting, not creating.
+
+**WARM AMBER-ORANGE (Warung Siang) = You are in the presence of something worth eating.**
+The only color that belongs to the world rather than the platform. When Visiting Phase warms toward this hue, the visual grammar says: you are not in the feed right now, you are in a restaurant. The platform recedes; the subject reasserts itself.
+
+---
+
+### 4.3 Per-Phase Color Temperature Rules
+
+*(Food photos always remain at nominal hue unless a special treatment is specified. These rules apply to UI chrome and ambiance/background tiles only.)*
+
+**Planning Phase** — Cool. Blue-white screen glow.
+Shift all UI non-photo hues -8 to -12° toward blue. Layar Pagi at full brightness. Notifikasi at full saturation (most interactive phase). Warung Siang absent from UI entirely — only in food photo content.
+Food photos: 100% saturation, nominal hue. The only warm things on screen — contrast is deliberate.
+
+**Visiting Phase** — Warm but contained. Overhead-light warmth.
+UI panels shift +6 to +10° toward warm. Warung Siang appears in background ambiance tiles. Layar Pagi takes on a barely perceptible cream tint (3–5% warm shift). Checklist UI elements remain Aspal Malam-on-Layar Pagi; checklist row backgrounds can accept 10% Warung Siang tint on selected state.
+Food photo: Full panel, 100% saturation, 100% brightness. Warmth lives in background tiles, not UI chrome.
+
+**Publishing Phase** — Overexposed warm. Screen-bright.
+UI shift +12–15° warm from Planning baseline. Notifikasi at maximum saturation. Layar Pagi pushes toward pure white (cool cast removed). Badge overlay (REVIEWED, star rating) at full saturation regardless of global saturation value — this is the visual payoff of the entire phase cycle. 2-frame brightness pulse on upload confirmation.
+Food photo: 100% saturation but overexposed-bright UI surrounds it — contrast with background reduced. The act of publishing is the subject now, not the food.
+
+**Bill Paying Phase** — Drained. No warmth source.
+Global saturation multiplier: 0.15–0.25 on all scene elements except semantic financial colors. Warung Siang disappears. Notifikasi disappears. Remaining: Layar Pagi (clinical white), Aspal Malam (cold grey), and the semantic trio applied to balance number only. Food photos reduced to small desaturated periphery thumbnails.
+*Technical note:* Implement as global CanvasModulate or post-process color-grade on scene layer. Semantic financial colors must be drawn on a separate UI layer bypassing this grade.
+
+**Game Over** — Cold halt. Near-monochrome.
+Scene layer desaturation ~5%. BANGKRUT badge on top-most UI layer outside saturation shader scope — full Saldo Merah, 100% saturation, 100% opacity. No animation. Layar Pagi reads as cold blue-tinted white — the white of an error screen.
+
+**Main Menu / Between Runs** — Neutral-warm. Nostalgic softness.
+Medium saturation (60–70% of nominal). +4 to +6° toward warm from Planning. Archived food photo thumbnails from previous runs: apply faint desaturation and +8° warm shift to signal "this is the past." The "+" create new content button uses Notifikasi blue at full saturation — the only live, current-feeling element in an otherwise retrospective palette.
+*Technical note:* Archived photo treatment achievable with a single semi-transparent warm tint overlay (~15% opacity) rather than recolouring individual sprites.
+
+**Milestone Moments** — Phase flash. Brief overexposure.
+1–2 frame white-wash flash, then return to current phase palette. "Going Viral" uses Publishing Phase peak saturation, pushed to maximum. "Restoran Tutup" uses grey-wash over that restaurant's food photo. Notification banners use same digital stamp design from Section 1 — but drawn on top-UI layer, uninvited.
+
+---
+
+### 4.4 UI Palette Rules
+
+**The core rule: UI uses platform colors; world content uses food colors.**
+
+UI elements (panels, buttons, labels, badges, navigation, checklist rows, financial figures) use only: Layar Pagi, Aspal Malam, Notifikasi, and the semantic trio (Saldo Merah, Amber Kritis, Foto Hijau). Warung Siang is never a UI color — it enters the screen only through food photo tiles and ambiance background tiles.
+
+**Background value target:** Layar Pagi ≈ #F5F7FA equivalent. Near-white with barely perceptible blue-cool cast (200–210° hue, 8–12% saturation, 97–98% value in HSV). Produces a simultaneous contrast effect — food photo warm tones read approximately 10–15% more saturated than they technically are because the surround is cooler. A free visual enhancement.
+
+**Dark mode:** Not in scope for first pass. If added later, Aspal Malam becomes background and Layar Pagi becomes text color — roles invert cleanly. Do not add colored tints to either in dark mode.
+
+---
+
+### 4.5 Colorblind Safety
+
+Primary risk: the financial state trio (Foto Hijau / Amber Kritis / Saldo Merah) uses the classic red-amber-green pattern — the most common failure point for deuteranopia and protanopia.
+
+**Required backups — color is never the only signal for financial state:**
+
+- **Saldo Merah (danger):** Downward-arrow glyph prefix on the balance number, rendered in Aspal Malam. The BANGKRUT badge uses text ("BANGKRUT") as primary communication — never relies on red being perceived.
+- **Amber Kritis (warning):** Exclamation-mark or warning glyph prefix on the financial number. Warning meaning also reinforced by global saturation reduction of surrounding UI elements — context communicates stress even if the hue is ambiguous.
+- **Foto Hijau (safe):** Small stable-state indicator (flat horizontal line or checkmark) adjacent to a safe balance. Lower priority — failing to see "safe" causes false anxiety, not missed danger.
+
+*Asset detail:* Colorblind-safe glyph set defined in Section 8 (Asset Standards). The rule here: backup via shape, position, or text — never add extra colors to solve colorblind problems.
+
+---
+
+### 4.6 Food Photo Color Treatment
+
+Food photos are painted at nominal saturation and left alone. **The UI shifts around them; photos do not shift.** Exception: Bill Paying and Game Over, where photos join global desaturation because in those phases, food is no longer the subject.
+
+**Three-tier photo color system (visual shorthand for restaurant quality — no tutorial needed):**
+
+| Tier | Restaurant type | Color temperature | Contrast | Pixel treatment |
+|---|---|---|---|---|
+| **Tier 1** (high-end) | Fine dining | Warm bias, controlled | High — subject separates cleanly | Warmest values of Warung Siang as highlight |
+| **Tier 2** (mid-range) | Standard restaurants | Neutral | Moderate | "Shot with a decent phone on a good day" |
+| **Tier 3** (low-end) | Warung, street food | Cool or mixed | Low — dish doesn't fully separate from table | More dithering at edges, less contrast |
+
+**Color budget per food photo tile: 16 colors** (production target for solo dev; may expand to 24 if resolution requires it). The tile's dominant color must be identifiable as belonging to one of the three temperature tiers above without reading any text.
+
+**Simultaneous contrast note:** During Planning Phase (cool UI surround), food photo warm tones read ~10–15% more saturated than they are. During Visiting Phase (warm UI ambient), this effect diminishes — the photo and UI converge in temperature, creating a subtle "you are now inside the experience" visual signal.
+
+---
+
+### Color System Consistency Check
+
+| Rule | Serves Feed Aesthetic? | Solo-dev producible? |
+|---|---|---|
+| 6 primary + 1 wild card palette | Yes — minimum viable semantic system | Yes — trackable without a spreadsheet |
+| Saturation lever drives all phase changes | Yes — single mechanic, all states | Yes — one CanvasModulate or shader |
+| Warung Siang = world/food only, not UI | Yes — platform vs. restaurant distinction | Yes — one rule to check per element |
+| Notifikasi blue = platform, interactive only | Yes — feed grammar, tap-target language | Yes — limits blue to one meaning |
+| Saldo Merah exempt from saturation lever | Yes — suspension/danger always reads | Yes — separate UI layer |
+| Colorblind backup via shape, not palette | Yes — accessibility, not extra colors | Yes — glyph prefixes, no new sprites |
+| Food photos painted once, UI shifts around | Yes — photos are currency, not decor | Yes — halves the color management work |
+| Photo tier readable from color temperature alone | Yes — visual shorthand, no tutorial | Yes — three temperature bands |
 
 ---
 
