@@ -1688,4 +1688,170 @@ Fonts are system RAM (not VRAM): ~2 MB for two vector typefaces. Total memory we
 
 ## 9. Reference Direction
 
-[To be authored]
+*This section does not provide mood boards or general inspiration. It provides a precise reading of five curated works — telling you specifically what to take, what to leave behind, and when to open each reference during production. Every entry is written in terms of actionable decisions: border radius, color assignment, information density, silhouette treatment. When you are authoring a tile in Godot and you do not know which direction to push a design decision, this section tells you which reference to open and what to look for in it.*
+
+*A fifth reference has been added beyond the four confirmed at the start of the art bible process. The confirmed four cover information design, card systems, NPC character presence, and food materiality — but none of them depict the visual language of a personal Indonesian social media account, which is the game's primary identity anchor (Section 1). The fifth reference fills that gap directly.*
+
+---
+
+### 9.1 Papers Please
+**Lucas Pope, 3909 LLC, 2013. PC game.**
+
+**Why it is here:** Papers Please is the primary reference for the visual language of bureaucratic reckoning — the moment when the game shifts from routine absorption into consequence. This maps to Pillar 3, Reviewer Bukan Dewa: the game does not let you forget that decisions have weight, and that weight is made visible in the interface itself.
+
+**What to take:**
+
+- **Red as the singular saturation survivor.** In Papers Please, the playing field is near-monochrome grey-brown, and red appears only when something has gone wrong — the red stamp, the red violation text, the red "DENIED." All of them carry full saturation against a desaturated field, making them physically alarming. Apply this logic to Saldo Merah exactly: it must never appear alongside other saturated colors. When it appears, it appears against Aspal Malam or a heavily desaturated background so it is the only thing the eye can land on. Never use Saldo Merah as one color among several — use it as the only color.
+
+- **Information density as pressure, not decoration.** The Papers Please desk accumulates papers, stamps, rule books, and citation windows until the player feels genuinely overwhelmed by overlapping information. This is intentional pressure design, not clutter. Apply this to Zone B during late-game rounds: let the checklist rows, badge overlays, and engagement counters occupy the card simultaneously without whitespace relief. The density signals that the player is deep in the routine. Do not clean it up.
+
+- **The stamp as commitment signal.** The physical stamp gesture closes a decision loop. It simply appears — no animation flourish, no bounce, no celebration. Apply this to the publish action in Publishing Phase: the badge appears after the POST press. The post appears or it does not. This is the zero-animation-budget choice that also carries the most emotional weight.
+
+- **Typography doing all visual hierarchy work.** Papers Please uses no iconography to distinguish field types — everything is text, differentiated by size and weight alone. When you are uncertain whether to add an icon to a UI row, open Papers Please: the answer is almost always that text alone is sufficient.
+
+**What to avoid:**
+
+- **Brown-grey desaturated base palette as permanent state.** Papers Please uses near-total desaturation as a baseline. Cicip & Catat uses saturation as a dynamic lever — high saturation is the confident publishing state. Borrowing desaturation as a permanent baseline flattens the lever system and makes the BANGKRUT state unreadable.
+
+- **Physical paper and texture metaphors.** Papers Please uses paper grain, folder textures, and document physicality throughout. The Cicip & Catat visual identity is explicitly a social media feed, not a paper document (Section 1). Any paper texture, ruled line, or document-corner metaphor conflicts with the feed identity and must be excluded.
+
+- **Symmetrical centered bureaucratic layout.** The Papers Please desk is centered and symmetric. Cicip & Catat's three-zone layout is asymmetric and vertically scrolling, modeled on a mobile feed column. Do not let this reference pull layout decisions toward centered symmetry.
+
+**Where it applies:** BANGKRUT screen and debt-state color decisions. Zone C action finality. Late-game information density in Zone B. Any moment requiring a Saldo Merah color judgment.
+
+---
+
+### 9.2 Balatro
+**LocalThunk, Playstack, 2024. PC/console game.**
+
+**Why it is here:** Balatro is the primary reference for card-as-world-unit design and for the visual grammar of a system that is simultaneously playful and mathematically serious. This maps to Pillar 1, Tiap Rupiah Bercerita: every card on screen must feel like it is carrying specific, readable information — not decorative surface.
+
+**What to take:**
+
+- **Card border as the complete visual unit.** In Balatro, a card is defined entirely by its border and its interior content. No drop shadow, no ambient glow, no emboss — the border is the object. This is the exact logic of the 2px outer corner radius rule: the border defines the food photo card, the stat card, the NPC interaction card. When unsure whether to add depth to a card element, open Balatro: the border alone is sufficient and anything added behind it reads as noise.
+
+- **Contrast between card face and card surround.** Balatro cards sit against a dark, low-saturation felt background, which makes the card face — full color — pop without special lighting. Apply this to how food photo tiles are presented against the feed background: the feed background (Layar Pagi or desaturated Aspal Malam depending on state) should be significantly lower in saturation than the food photo so the photo reads as the highest-energy element without requiring an outline or glow.
+
+- **Numerical information on a card is always the primary read.** Balatro places chip values and multiplier numbers at a size that dominates the card face. The number is not decoration — it IS the card's message. This supports the Balance Number (T2 hierarchy) rule: when sizing the balance numeral, Balatro's chip count is the reference. The number should be legible at reading distance without the player needing to focus.
+
+- **Flat color fills inside card boundaries, no gradient.** Every Balatro card interior uses flat color fills. This directly applies to the 7-color system: all colors are flat fills. Gradients within a card interior introduce tonal variation that conflicts with the strict color budgets (Section 8.3).
+
+- **Special cards read differently because their border changes, not their interior.** Jokers are distinguished from playing cards by a different border treatment, not by interior art style changes. Apply this to badges: a badge differentiates a card not by changing the food photo inside, but by the overlay sitting at the card's corner (Section 3/7). The photo stays unchanged; the badge is the signal.
+
+**What to avoid:**
+
+- **Foil and holographic treatments.** These require GPU effects, violate the zero animation budget for tiles (Section 6), and conflict with the social media identity — a personal food reviewer's posts do not shimmer.
+
+- **Dark felt background as permanent surround.** Cicip & Catat's feed background is Layar Pagi (cool near-white) in the confident state. The background shifts are defined by game state (Section 4), not by Balatro's aesthetic.
+
+- **High corner radius on cards.** Balatro uses a relatively high corner radius giving cards a tactile, friendly feel. Cicip & Catat uses 2px outer radius (Section 3) — near-square. The small radius signals feed posts and tiles, not physical cards. Borrowing Balatro's radius shifts the visual register toward card game, away from social media interface.
+
+**Where it applies:** Food photo card composition and border treatment. Balance number sizing and placement. Badge vs. photo interior logic. Color fill decisions within any card boundary.
+
+---
+
+### 9.3 Hades
+**Supergiant Games, 2020. PC/console game.**
+
+**Why it is here:** Hades is the primary reference for NPC visual presence — specifically how to make a character feel like a complete, emotionally legible individual at small sprite scale, and how to use color to differentiate characters without increasing pixel count. This maps to Pillar 4, Restoran Punya Jiwa: the restaurant cast must feel like people, not props.
+
+**What to take:**
+
+- **One silhouette differentiator per character, held absolutely.** Every character in Hades is identifiable by outline alone before any color reads. Section 5 mandates one silhouette differentiator per NPC archetype (Owner's headwear, Chef's hand state, Rival's phone angle). Hades is the verification reference: if you cannot identify the NPC archetype from a silhouette-only black fill of the 32×48px sprite, the differentiator is not strong enough.
+
+- **Color identity as the first character signal.** In Hades, each character has a dominant hue that is assigned to them, not to their mood — the color stays constant regardless of emotional state. Apply this to NPC archetype color: each archetype should have a consistent dominant hue identifiable before the player reads sprite detail. Expressions change via sprite swap (Section 5); the color signature does not.
+
+- **Expression changes are read through eyes and brow, not mouth shape.** At the resolution Hades uses, character portraits communicate emotion primarily through eye direction and brow angle. At 32×48px NPC scale, this is even more true — there are not enough pixels to render mouth shape changes legibly. When designing the sprite swap set, expression must be carried by the 2–4 pixel region of eyes and brow.
+
+- **Background characters are lower saturation than speaking characters.** Hades visually recedes background NPCs — characters present but not currently active appear at reduced contrast and saturation. This supports Section 5's rule that NPC saturation runs at 70% of food photo saturation. Background NPCs (when visible) should be at 50% or less.
+
+**What to avoid:**
+
+- **High-resolution portrait art as a second read layer.** Hades supplements sprite art with painted portrait busts during dialogue. Cicip & Catat has no portrait system — the 32×48px sprite is the complete character representation. Do not introduce a portrait layer to compensate for small sprite size.
+
+- **Elaborate idle animation.** Every Hades character has rich idle animation — cloaks billow, weapons shift, hair moves. The NPC animation budget here is sprite-swap only (Section 5). Any influence toward flowing idle animation conflicts with the solo developer production scope.
+
+- **Dark mythological color palette.** Hades uses deep purples, reds, and blacks as environment colors. These conflict with the tier warmth ladder (Section 6): even T1 restaurants use Warung Siang at 20–30% warmth. Environments must always feel like recognizable Indonesian food spaces, not mythological.
+
+**Where it applies:** NPC silhouette design review. NPC color identity assignment. Sprite swap expression set design. Multi-NPC scene saturation layering.
+
+---
+
+### 9.4 Ratatouille
+**Brad Bird / Jan Pinkava, Pixar, 2007. Film.**
+
+**Why it is here:** Ratatouille is the primary reference for food materiality and for the visual argument that food is simultaneously humble and transcendent. This maps to Pillar 1, Tiap Rupiah Bercerita, and Pillar 4, Restoran Punya Jiwa: a bowl of soto should carry the same visual dignity as a plated fine-dining dish, differentiated only by composition, not by quality of rendering.
+
+**What to take:**
+
+- **Color temperature as the primary food identity signal.** Ratatouille's food sequences use warm amber-yellow-orange as the dominant temperature of cooked food regardless of dish type. This is the exact function of Warung Siang in Section 4. When designing a food photo tile, the first color decision is: where does Warung Siang or a close warm analog appear? If it does not appear, the tile has not been grounded in the game's food color language.
+
+- **Steam and broth as legibility signals, not decoration.** Ratatouille uses steam wisps and broth surface sheen to signal "this is hot, this is fresh, this matters." At 64×64px tile scale, a single steam wisp or broth surface highlight rendered as 2–4 pixels of near-white above the dish communicates freshness without requiring animation. It is a static readability signal.
+
+- **Ingredient legibility over photo-realism.** In Ratatouille's key food sequences, each ingredient in a dish is rendered so the viewer can name it. At 64×64px, this means each food photo should contain 2–4 identifiable ingredient shapes. The player must be able to read "nasi goreng" or "gado-gado" from tile content, not from the UI label alone.
+
+- **The humble dish receives the same framing as the prestige dish.** The dish that wins the critic in Ratatouille is a peasant vegetable stew, framed with the same care as any five-star presentation. Apply this across all restaurant tiers: T3 warung soto tile and T1 upscale restaurant tile use the same 64×64px canvas, same color budget, same ingredient legibility rule. Tier difference is communicated by environment tile warmth (Section 6) and UI context — not by reducing rendering quality on lower-tier food.
+
+**What to avoid:**
+
+- **3D depth and specular highlight as surface language.** Ratatouille's food has 3D volume, subsurface scattering, and specular wet highlights. At 64×64px pixel art scale with a 24-color maximum, any attempt to emulate specular highlights will produce muddy, unreadable tiles. Food photo tiles use flat color fills with hard pixel edges, not soft 3D approximations.
+
+- **Cinematic framing (Dutch angles, extreme close-up distortion).** Ratatouille uses dramatic low angles and rack focus. At 64×64px tile scale, there is effectively one camera position: straight-on or a gentle 3/4 angle. Perspective drama at this resolution makes ingredients unidentifiable.
+
+- **Background bokeh and depth-of-field separation.** Ratatouille separates food from background through focus — the dish is sharp, the kitchen blurs. In the tile context, there is no background within the food photo: the card boundary is the separation device (Section 3). Do not simulate background blur within the 64×64px tile; the 2px card border does the separation work.
+
+**Where it applies:** All food photo tile authoring. Color temperature judgment on food tiles. Ingredient legibility review. Cross-tier food rendering consistency checks.
+
+---
+
+### 9.5 BeReal and Indonesian Food Creators
+**BeReal (app, 2020–present) and Indonesian food review accounts on Instagram/TikTok, 2019–present.**
+
+**Why it is here:** None of the four confirmed references depict the visual language of a personal social media feed managed by an independent creator — which is the single most important identity anchor in this game (Section 1). Papers Please shows bureaucratic reckoning. Balatro shows card systems. Hades shows character presence. Ratatouille shows food materiality. None of them show what it looks like when someone who is not a professional media company posts a food review from their phone. This reference fills that gap and is the primary source for moment-to-moment feed layout decisions, engagement counter formatting, notification language, and authentic-imperfection signals.
+
+**What to take:**
+
+- **The engagement counter as a raw number, not a formatted display.** On personal Indonesian food Instagram accounts, engagement counters read as exact unformatted numbers: "1.247 suka", "83 komentar." No progress bar, no percentage, no color coding — just the number and the label in plain text. This supports Slot B (tabular monospaced) for all engagement counter values: the number reads as data, not as a designed element. When placing an engagement counter in Zone A or Zone B, observe the counter position and text weight on any Indonesian food creator's post — it is secondary to the photo but always present.
+
+- **Notification language is lowercase, truncated, and time-stamped.** Indonesian social media notifications read like text messages: "si_foodie123 menyukai foto Anda", "3 orang baru mengikuti akun Anda." Not headline-cased, not formally punctuated, and always with a time reference ("2 jam lalu", "kemarin"). This is the model for all notification-language UI text in the game. The lowercase pill labels in the checklist system (`rasa`, `pelayanan`, Section 7) follow this same voice.
+
+- **The grid card uses portrait 4:5 or square 1:1 aspect ratio.** Indonesian food Instagram posts overwhelmingly use portrait 4:5 or square 1:1 framing — 4:5 is dominant because it occupies more vertical feed space. The food photo card in Zone B should use this proportion: taller than wide, not widescreen.
+
+- **Imperfection signals are specific and sparse.** On authentic personal creator accounts, imperfection appears in exactly two or three places: a slightly off-center crop, a photo taken at an odd angle, an editing inconsistency between posts. It does not appear everywhere. Section 3's authenticity signal — 1-unit card height variation — applies this logic precisely. When uncertain how much imperfection to add, look at a real Indonesian food creator's grid: most cards are consistent, one or two break slightly. More than that reads as designed mess, not authentic variance.
+
+- **Story format creates full-bleed vertical canvas with text overlay.** Instagram Stories use full-bleed portrait images with text overlaid at top or bottom, often with a translucent background behind the text for legibility. This is the reference for any full-screen state that uses a full-bleed format — the image or color field fills the entire screen, and any text floats over it with a legibility background, not in a separate panel.
+
+**What to avoid:**
+
+- **Sponsored post visual treatment.** Branded and sponsored content uses polished professional photography, branded frames, logo placements, and high-production design elements. The game's identity is explicitly an independent creator, not a brand account. Any element that reads as "produced by a company" conflicts with the solo creator identity.
+
+- **Engagement metric gamification design (progress bars, color-coded tiers).** Some social media simulation games translate follower counts into progress bars or level indicators. Cicip & Catat's engagement counters are raw numbers only (Zone A, Section 7). A progress bar representation breaks the feed illusion.
+
+- **Algorithmic "For You" aesthetic.** TikTok's and Instagram Reels' algorithmic feed has a specific visual language: short-form video, auto-play, bold rounded caption fonts, sound-on assumption. Cicip & Catat is a curated personal grid, not an algorithmic scroll. Any element borrowed from short-form video UI belongs to a different product and must not appear.
+
+**Where it applies:** All feed layout decisions and grid card proportions. Engagement counter formatting and placement. Notification and checklist label language and casing. Authenticity-imperfection calibration. Full-bleed state screens (BANGKRUT, publish confirmation).
+
+---
+
+### Reference Application Guide
+
+| Game Phase / Asset Type | Primary Reference | Secondary Reference |
+|---|---|---|
+| Food photo tile authoring | Ratatouille (9.4) | Balatro (9.2) for card border treatment |
+| Food photo color temperature | Ratatouille (9.4) | — |
+| Feed layout and grid card proportions | BeReal / Indonesian creators (9.5) | Balatro (9.2) for card interior logic |
+| Engagement counter formatting | BeReal / Indonesian creators (9.5) | Papers Please (9.1) for text-only hierarchy |
+| NPC silhouette design | Hades (9.3) | — |
+| NPC expression sprite swap | Hades (9.3) | — |
+| Multi-NPC saturation layering | Hades (9.3) | — |
+| Zone B card composition | Balatro (9.2) | BeReal / Indonesian creators (9.5) |
+| Badge placement and border treatment | Balatro (9.2) | — |
+| Balance number sizing | Balatro (9.2) | Papers Please (9.1) |
+| BANGKRUT screen and debt-state color | Papers Please (9.1) | BeReal / Indonesian creators (9.5) for full-bleed format |
+| Zone C action finality | Papers Please (9.1) | — |
+| Saldo Merah usage judgment | Papers Please (9.1) | — |
+| Late-game information density | Papers Please (9.1) | Balatro (9.2) |
+| Notification and checklist label language | BeReal / Indonesian creators (9.5) | Papers Please (9.1) for text-only treatment |
+| T3 warung environment tile warmth | Ratatouille (9.4) | — |
+| Full-bleed state screens | BeReal / Indonesian creators (9.5) | — |
+| Cross-tier food rendering consistency | Ratatouille (9.4) | — |
