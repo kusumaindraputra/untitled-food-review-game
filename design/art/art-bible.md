@@ -1174,7 +1174,515 @@ If not viral: step 4 skipped, step 5 shows neutral follower gain. No mandatory w
 
 ## 8. Asset Standards
 
-[To be authored]
+*This section translates all visual decisions from Sections 1–7 into production-level rules: naming, canvas specs, color budgets, Godot import settings, scene architecture, palette enforcement, and the MVP production shortlist. The two halves (art production and technical pipeline) are merged here and must be read together.*
+
+---
+
+### 8.1 File Naming Convention
+
+All assets follow the pattern: `[category]_[descriptor]_[variant/state]_[size].[ext]`
+
+Segments are lowercase, separated by underscores. No spaces. No camelCase. Abbreviations are fixed — do not improvise new ones.
+
+**Category prefixes:**
+
+| Category | Prefix |
+|---|---|
+| Food photo tile | `food` |
+| Environment tile | `env` |
+| NPC sprite | `npc` |
+| Player avatar | `plr` |
+| Player hand/phone | `hand` |
+| UI element (raster) | `ui` |
+| Font resource | `fnt` |
+
+*Badges have no category prefix — they are code-driven Control nodes, not imported image assets. See Section 8.9.*
+
+**Food photo tiles:** `food_[dish]_[tier]_64.png`
+- `[dish]` — romanized Indonesian slug, max 16 chars (e.g., `nasigoreng`, `bakso`, `miegoreng`)
+- `[tier]` — temperature tier: `t1`, `t2`, or `t3`
+- Size suffix always `64` (64×64px canvas)
+
+Examples: `food_nasigoreng_t1_64.png`, `food_bakso_t3_64.png`
+
+**Environment tiles:** `env_[pool]_[object]_[variant]_48.png`
+- `[pool]` — `uniq` / `shared` / `univ`
+- `[object]` — object slug, max 12 chars
+- `[variant]` — numeric `01`–`99` or short descriptor (`a`, `b`, `clean`, `dirty`)
+
+Examples: `env_uniq_kursi_01_48.png`, `env_shared_meja_dirty_48.png`, `env_univ_lantai_a_48.png`
+
+**NPC sprites:** `npc_[archetype]_[id]_[state]_32x48.png`
+- `[archetype]` — `owner`, `chef`, or `rival`
+- `[id]` — `01`–`99` per archetype (not globally unique)
+- `[state]` — `idle`, `breathe01`, `breathe02`, `pleased`, `tense`
+
+Examples: `npc_owner_01_idle_32x48.png`, `npc_chef_02_tense_32x48.png`
+
+**Player sprites:**
+- Avatar: `plr_avatar_[id]_24x24.png` (e.g., `plr_avatar_01_24x24.png`)
+- Hand/phone: `hand_[state]_48x32.png` (states: `hold`, `shoot`, `review`, `scroll`)
+
+**UI raster elements** (icons, glyphs — only when not covered by the typeface):
+`ui_[component]_[variant]_[state].png`
+- Component slugs: `icon`, `glyph`, `bar`, `divider`
+- State: `default`, `hover`, `pressed`, `disabled`, `active`
+
+Examples: `ui_glyph_down_default.png`, `ui_glyph_warn_default.png`, `ui_glyph_check_default.png`
+
+**Font resources:** `fnt_[slot]_[weight].[ttf|otf]`
+- Slot: `a` (proportional body) or `b` (monospaced numerals)
+- Weight: `regular`, `bold`
+
+Examples: `fnt_a_regular.ttf`, `fnt_b_regular.ttf`, `fnt_a_bold.ttf`
+
+---
+
+### 8.2 Canvas and Export Standards
+
+#### Food Photo Tiles (64×64px)
+
+| Property | Value |
+|---|---|
+| Canvas size | 64×64px |
+| Export format | PNG-32 |
+| Alpha channel | Required — 1px transparent border enforced (see below) |
+| 1px transparent border | Required on all four sides. Dish content lives within 62×62px inner area. Prevents NEAREST filter color bleed when tiles are placed adjacent. |
+| Bleed/margin | None beyond the transparent border |
+
+#### Environment Tiles (48×48px)
+
+| Property | Value |
+|---|---|
+| Canvas size | 48×48px |
+| Export format | PNG-32 |
+| Alpha channel | Required — TileMap compositor needs alpha channel for layering |
+| 1px transparent border | Required on all four sides. Visible content within 46×46px. Non-negotiable at NEAREST filter. |
+| Bleed/margin | None |
+
+#### NPC Sprites (32×48px)
+
+| Property | Value |
+|---|---|
+| Canvas size | 32×48px |
+| Export format | PNG-32 |
+| Alpha channel | Required — NPCs composite over environment layer |
+| 1px transparent border | Required on left and right edges. Top: 2px transparent minimum (headwear must not touch the topmost pixel row). Bottom: 1px. |
+
+#### Player Avatar (24×24px)
+
+| Property | Value |
+|---|---|
+| Canvas size | 24×24px |
+| Export format | PNG-32 |
+| Alpha channel | Required — circular crop applied at runtime; square canvas corners must be alpha 0 |
+| 1px transparent border | Required on all sides. Visible face content within 22×22px inner area. |
+
+#### Player Hand/Phone (48×32px)
+
+| Property | Value |
+|---|---|
+| Canvas size | 48×32px (landscape) |
+| Export format | PNG-32 |
+| Alpha channel | Required — composites over food photo in Visiting Phase |
+| 1px transparent border | Required on all sides |
+
+#### UI Raster Elements (icons, colorblind glyphs)
+
+| Property | Value |
+|---|---|
+| Canvas size | Icons: 16×16px. Colorblind glyphs: 8×8px standard / 12×12px for large contexts |
+| Export format | PNG-32 |
+| Alpha channel | Required |
+| 1px transparent border | Required for icons. Not required for 1×1px tiling fills. |
+
+**General export rules (all types):**
+- Always PNG. No JPEG, no WebP, no interlacing.
+- Never use "save for web" lossy export options.
+- Color profile: sRGB, no embedded ICC profile.
+- Strip all metadata (comments, author fields) before committing.
+
+---
+
+### 8.3 Color Budget Per Asset Type
+
+Color budget is a hard ceiling on distinct RGBA values in the exported PNG, excluding fully-transparent pixels (alpha 0).
+
+| Asset type | Color budget | Notes |
+|---|---|---|
+| Food photo tiles | 16 colors (24 max permitted) | Food-only color language — named palette colors must NOT appear in food tiles |
+| Environment tiles | 12 colors max | Universal pool tiles: 8 colors max (must read across all tier contexts) |
+| NPC sprites (32×48px) | 16 colors max | 3 skin values + clothing + Warung Siang on food pixels only + headwear accent + outline |
+| Player avatar (24×24px) | 8 colors | 2-3 skin values + hair + eye + clothing + outline (per Section 5) |
+| Player hand/phone (48×32px) | 10 colors | Skin must match avatar skin tone set exactly |
+| UI chrome elements | Named palette only | 7 named colors + white (Layar Pagi) + dark (Aspal Malam) — no additions |
+| Colorblind glyph icons | 3 colors max | Glyph color + background color + transparent |
+
+**Strict Warung Siang rule:** Warung Siang (28–38° warm amber-orange) may only appear in food photo tiles, environment tiles (as ambient warmth per Section 6.1), and NPC sprites when the pixel represents literal food content (a bowl being carried, steam from a dish). It must not appear in UI chrome, badges, or non-food NPC details. Any warm amber-orange pixel in a UI asset is an error.
+
+**Strict Notifikasi rule:** Notifikasi (255–265° electric blue-violet) may only appear in UI interactive elements and badge fills (VIRAL badge). It must not appear in any environment tile or NPC sprite.
+
+---
+
+### 8.4 Per-Asset Production Checklist
+
+Apply this checklist before committing any asset. A "no" on any item is a blocking issue.
+
+**Universal checklist (all asset types):**
+```
+[ ] 1. File name matches Section 8.1 convention exactly.
+[ ] 2. Canvas dimensions match Section 8.2 spec for this asset type.
+[ ] 3. Export format is PNG-32 (or PNG-8 only where explicitly permitted).
+[ ] 4. Alpha channel correct: transparent areas are alpha 0, not near-transparent.
+        No anti-aliasing fringe pixels (50-200 alpha) on shape edges.
+[ ] 5. 1px transparent border is intact on all required edges.
+        Zoom to 1600% and verify every border pixel is alpha 0.
+[ ] 6. No anti-aliased pixel edges. Every edge pixel is alpha 0 or alpha 255.
+[ ] 7. Color count is within budget for this asset type (Section 8.3).
+[ ] 8. All colors are authorized for this asset type.
+        UI chrome: named palette only. NPCs: approved skin tones + permitted accents.
+        Food tiles: food-only color language (no named palette contamination).
+```
+
+**Food photo tiles (additional):**
+```
+[ ] 9.  No named palette color (Layar Pagi, Notifikasi, Saldo Merah, etc.) appears.
+[ ] 10. Dish content contained within 62×62px inner area (not touching 1px border).
+[ ] 11. Temperature tier is correct: T1=warm, T2=neutral, T3=cool/mixed.
+```
+
+**Environment tiles (additional):**
+```
+[ ] 9.  Notifikasi is absent.
+[ ] 10. Warung Siang appears only on pixels depicting literal food content.
+[ ] 11. Primary object is identifiable at 100% zoom (no magnification).
+[ ] 12. Max one storytelling signal per tile (per Section 6.3).
+```
+
+**NPC sprites (additional):**
+```
+[ ] 9.  Notifikasi is absent.
+[ ] 10. Warung Siang absent except on food-representing pixels.
+[ ] 11. Archetype differentiator readable at 32×48px:
+         Owner: headwear silhouette present. Chef: hand state active. Rival: phone angle present.
+[ ] 12. Skin tone values match one of the three approved skin tone sets.
+```
+
+**UI chrome elements (additional):**
+```
+[ ] 9.  Warung Siang is absent.
+[ ] 10. Only named palette colors present.
+[ ] 11. Shape grammar correct: 2px outer radius, 0px inner radius.
+[ ] 12. Interactive elements use Notifikasi. Static elements use Aspal Malam or Layar Pagi.
+```
+
+---
+
+### 8.5 Colorblind Safety Production Standards
+
+#### The Canonical Glyph Set
+
+Color is never the only signal. Every color-coded state requires a non-color glyph backup. The four canonical glyphs:
+
+| Glyph | State | Accompanies color |
+|---|---|---|
+| Downward arrow (↓) | Deficit / negative trend | Saldo Merah |
+| Exclamation mark (!) | Warning / critical threshold | Amber Kritis |
+| Checkmark (✓) | Safe / positive state | Foto Hijau |
+| Stable line (—) | Neutral / no change | Aspal Malam |
+
+**Glyph sizes and production method:**
+
+| Context | Glyph size | Method |
+|---|---|---|
+| HUD financial readout | 8×8px (as font character) | Runtime: Slot B font Unicode character. Verify Slot B font includes ↓ ! ✓ — before committing to this approach. If absent, substitute baked icon. |
+| Bill Paying summary | 12×12px | Runtime font character at larger font size |
+| UI bar state indicator | 8×8px baked icon | Separate PNG asset (`ui_glyph_down_default.png` etc.) — baked because bar alignment requires pixel precision |
+
+**Glyph pixel construction (for baked icons at 8×8px):**
+- Downward arrow: 3px-wide chevron pointing down, 1px stem above it. Total: 5px tall. Must not read as a minus sign.
+- Exclamation mark: 1px wide, 1×3px stem + 1px gap + 1×1px dot. Total: 5px tall.
+- Checkmark: 3-pixel rising diagonal, 3-pixel falling diagonal. Total: ~5×4px. Fits in 8×8 with 1px padding.
+
+**Glyph color rule:** White or Layar Pagi on Saldo Merah/Amber Kritis/Notifikasi fills. Aspal Malam on Foto Hijau or Layar Pagi fills. Minimum 4.5:1 contrast ratio required.
+
+#### Solo Dev Verification Process (in order)
+
+1. **Grayscale conversion check.** Convert asset to grayscale. Every semantically distinct state (safe/warning/danger) must be distinguishable by lightness value alone, without color.
+2. **Glyph presence audit.** For every asset using Saldo Merah, Amber Kritis, or Foto Hijau: verify the corresponding canonical glyph is visible at 100% game scale (not zoomed-in authoring view).
+3. **Simulation tool check.** Run the exported PNG through a colorblind simulation tool (Coblis or equivalent). Check deuteranopia, protanopia, tritanopia. Required for all badge-type UI and HUD assets. Recommended but not required for individual food tiles.
+4. **No-color-name test.** Describe the asset state out loud without using color words. If you cannot describe the state without naming a color, the "color is never the only signal" rule has not been implemented.
+
+**Per-asset colorblind requirement:**
+
+| Asset type | Required measure |
+|---|---|
+| Food photo tiles | None — tiles are aesthetic, not game-state-communicating |
+| Environment tiles | None — environment does not communicate game state |
+| NPC sprites | None — archetypes differentiated by shape, not color |
+| UI financial readouts | State glyph required (runtime font character or baked icon) |
+| UI buttons | Disabled state: reduced opacity (50%) in addition to color change |
+| BANGKRUT badge text label | Text "BANGKRUT" is the primary signal; Saldo Merah fill is reinforcement |
+
+---
+
+### 8.6 MVP Production Shortlist
+
+MVP = 3-month survival loop, 5 Tier-3 restaurants.
+
+**Blocking (game cannot be playtested without these):**
+
+Environment foundation (5 of 26 MVP tiles; remainder use Godot ColorRect placeholders):
+- `env_univ_lantai_01_48.png`
+- `env_univ_tembok_a_48.png`
+- `env_univ_pintu_01_48.png`
+- `env_shared_meja_clean_48.png`
+- `env_shared_kursi_01_48.png`
+
+NPC sprites (one per archetype to test NPC system):
+- `npc_owner_01_idle_32x48.png`
+- `npc_chef_01_idle_32x48.png`
+- `npc_rival_01_idle_32x48.png`
+
+Player sprites:
+- `plr_avatar_01_24x24.png`
+- `hand_hold_48x32.png`
+- `hand_shoot_48x32.png`
+
+Food photo tiles (minimum to test temperature system and saturation lever):
+- One T1 tile: `food_[dish]_t1_64.png`
+- One T2 tile: `food_[dish]_t2_64.png`
+- One T3 tile: `food_[dish]_t3_64.png`
+
+UI glyph icons (colorblind safety minimum):
+- `ui_glyph_down_default.png` — danger state indicator
+- `ui_glyph_warn_default.png` — warning state indicator
+
+Font resources:
+- `fnt_a_regular.ttf` + `fnt_a_bold.ttf`
+- `fnt_b_regular.ttf`
+
+**Non-blocking (use placeholder, validate loop first):**
+- Remaining 21 environment tiles (Godot ColorRect in named palette colors)
+- Owner variants `npc_owner_02` through `npc_owner_05` (duplicate `owner_01` with hue shift)
+- NPC breathing loop frames (`breathe01`, `breathe02` for all archetypes)
+- Remaining food photo tiles for all 5 restaurants
+- `ui_glyph_check_default.png` (safe state — missing this causes false anxiety, not missed danger)
+
+---
+
+### 8.7 Art Direction Self-Review Checklist
+
+Answer all 10 questions before committing any asset. A "no" requires revision.
+
+```
+[ ] 1. Feed aesthetic: Does this look like it belongs in a personal food blog or
+        indie creator feed — not a corporate product or a physical notebook?
+
+[ ] 2. Warm color containment: If this is UI chrome, badge, or environment tile,
+        is Warung Siang (28-38° warm amber-orange) absent?
+
+[ ] 3. Shape grammar: Do rounded corners match the spec — 2px outer, 0px inner?
+        Is there any decorative curvature that wasn't in the brief?
+
+[ ] 4. Visual weight: Does this element feel like the right weight for its role?
+        Does it compete with elements that should be above it in the hierarchy?
+
+[ ] 5. Color signal backup: If this communicates game state via color, is there
+        a non-color signal (glyph, shape change, size change) present?
+
+[ ] 6. NEAREST filter safety: Zoom to 400%. Are all edges fully hard —
+        alpha 0 or alpha 255 only, no intermediate values?
+
+[ ] 7. Color budget: Is the color count within budget (Section 8.3)?
+        Can any two similar values be unified?
+
+[ ] 8. Palette purity: Does this use only authorized colors for its type?
+        UI chrome: named palette only. Food tiles: food-only color language.
+        NPCs: approved skin tones + permitted accents.
+
+[ ] 9. Naming and size: Is the file name exactly correct (Section 8.1)?
+        Is the canvas size exactly correct (Section 8.2)?
+
+[ ] 10. Solo dev gut check: Step away 5 minutes, then look at 100% game scale.
+         Does it feel like it belongs in this game?
+```
+
+---
+
+### 8.8 Godot Import Settings Per Asset Type
+
+*Badges and UI chrome are composed from Godot Control nodes with StyleBoxFlat — they have no imported textures and are excluded from this section.*
+
+**General principle:** All pixel art uses lossless compression and nearest-neighbor filtering. Lossy compression (S3TC/ETC2/BPTC) applies block-compression that destroys sub-pixel color boundaries — unacceptable for a 7-color palette where a single incorrect pixel is immediately visible.
+
+**Do not change the project-level default texture filter.** Set `texture_filter = NEAREST` on each individual node (TextureRect, Sprite2D, TileMap/TileMapLayer). This preserves default linear filtering for vector fonts and SVG assets globally. [VERIFY IN GODOT 4.6 DOCS — Confirm node-level `texture_filter` override behavior in 4.6, given rendering pipeline changes in 4.4+.]
+
+**Food Photo Tiles (64×64px):**
+
+| Setting | Value | Reason |
+|---|---|---|
+| `compress/mode` | Lossless | Preserves indexed-color palette exactly |
+| `flags/mipmaps` | Off | At NEAREST filter, mipmaps cause bleeding artifacts at tile boundaries |
+| `process/fix_alpha_border` | On | Prevents color fringing at transparent border edges |
+| `process/premult_alpha` | Off | Enable only if tiles show dark halos in-engine |
+| `texture_filter` | NEAREST (node-level) | Set on each TextureRect node |
+
+**Environment Tiles (48×48px):**
+
+| Setting | Value |
+|---|---|
+| `compress/mode` | Lossless |
+| `flags/mipmaps` | Off |
+| `process/fix_alpha_border` | Off (tiles are opaque within footprint) |
+| `texture_filter` | NEAREST (TileSet or TileMapLayer node level) |
+
+*TileSet note:* If tiles are imported into a TileSet resource, the filter setting on the TileSet's texture takes precedence over node-level settings. Verify the TileSet Inspector shows `texture_filter = NEAREST` per texture entry. [VERIFY IN GODOT 4.6 DOCS — In Godot 4.4+, TileMap was refactored into TileMapLayer. Confirm whether the TileSet texture filter is set on the TileSet resource or on the TileMapLayer node in 4.6.]
+
+**NPC Sprites (sprite sheet, 32×48px cells):**
+
+| Setting | Value |
+|---|---|
+| `compress/mode` | Lossless |
+| `flags/mipmaps` | Off |
+| `process/fix_alpha_border` | On |
+| `process/premult_alpha` | Off |
+| `texture_filter` | NEAREST (Sprite2D node level) |
+
+**Player Avatar (24×24px):** Same as NPC sprites. Circular crop applied at runtime via ShaderMaterial (see 8.9).
+
+**Player Hand/Phone (48×32px):** Same as NPC sprites.
+
+**UI Raster Elements (icons, colorblind glyphs):** Same as NPC sprites — Lossless, no mipmaps, `fix_alpha_border` on.
+
+---
+
+### 8.9 Scene and Node Architecture for Asset Usage
+
+**Food photo tiles in cards:** `TextureRect` node. Set `expand_mode` and `stretch_mode` to display at exactly 64×64 logical pixels without stretching. `texture_filter = NEAREST`. Cards (PanelContainer) handle layout sizing; TextureRect does not drive layout. [VERIFY IN GODOT 4.6 DOCS — `TextureRect.expand_mode` was reworked in Godot 4.x. Confirm the non-stretched display combination in 4.6.]
+
+**Environment tiles:** Use **TileMap (or TileMapLayer in Godot 4.4+)** — not manually placed Sprite2D nodes. TileMap/TileMapLayer provides built-in grid snapping, a visual tile editor, batched rendering, and a straightforward data model. One shared `TileSet.tres` resource covers all three tile pools (unique, shared, universal) as separate atlas source IDs within the single TileSet. Two TileMap layers within the node: one for floors, one for walls/objects.
+
+**NPC sprites:** Use **sprite sheet with `region_rect`** — not separate Texture2D files per expression state. One PNG per archetype. `Sprite2D` node with `region_enabled = true`; `region_rect` is set per expression state in code. Sheet layout: horizontal strip, one column per state. If the optional 2-frame breathing loop is implemented, use a top row (frame A) and bottom row (frame B) with a 2-keyframe `AnimationPlayer` at 0.75–1.0 fps.
+
+**Player avatar (circular crop):** `TextureRect` at 24×24px + `ShaderMaterial` with a fragment shader that discards pixels outside `length(UV - vec2(0.5)) > 0.5`. The source PNG remains a square sprite with standard import settings. Do not pre-crop to a circle at export — this discards pixels permanently and prevents use at other sizes. [VERIFY IN GODOT 4.6 DOCS — Confirm CanvasItem ShaderMaterial assignment on TextureRect in 4.6; verify `UV` built-in availability in canvas item shaders.]
+
+**Badges:** `PanelContainer + Label` nodes. No imported texture asset. Fill, corner radius, and border are set via `StyleBoxFlat` on the PanelContainer. Label text and font are set at runtime. Badge appearance changes are resource/code edits, not asset re-imports. The BANGKRUT badge is the same node structure, placed on CanvasLayer 90 (see 8.11).
+
+---
+
+### 8.10 Palette Enforcement in Godot
+
+**Palette reference asset:** `assets/art/palette/palette_reference.png` — a 7×1px PNG where each pixel is one of the seven canonical palette colors in fixed left-to-right index order. This is the single source of truth for all pipeline tools.
+
+**GIMP Palette file:** `assets/art/palette/cicip-catat.gpl` — plain text, importable into Aseprite and most pixel art tools. Both files are committed together and must change together if the palette changes.
+
+**Aseprite export workflow:**
+1. Use **Indexed Color Mode** in Aseprite — enforces palette membership at paint time.
+2. Load `cicip-catat.gpl` as the active palette before creating any new sprite document.
+3. Export as PNG with **Color Mode: Indexed**. Do not convert to RGB at export.
+4. No dithering on environment tiles and NPC sprites (dithering introduces off-palette in-between colors). Dithering is selectively permitted on food photo tiles where gradient simulation is intentional — document which food categories permit it.
+5. Do not use Aseprite's palette reduction or quantize on final exports.
+
+**Runtime palette validation (editor tool):** Implement a lightweight `EditorScript` at `tools/art-pipeline/palette_validator.gd` that iterates over `assets/art/`, loads each PNG as an `Image`, samples every pixel via `get_pixel()`, and reports any out-of-palette colors to the Output panel. Runs on demand, not in CI. Output only — no file modifications. [VERIFY IN GODOT 4.6 DOCS — `DirAccess` API changed in 4.4 with updated return types; verify current usage pattern before implementing.]
+
+---
+
+### 8.11 CanvasLayer Architecture
+
+*The layer numbers in this section supersede the rough references in Section 7 (which used 5, 10, 100 as illustrative values). Section 8.11 is the definitive stack.*
+
+**Exemption mechanism:** `CanvasModulate` multiplies its color against all content in the same viewport. To exempt a CanvasLayer from the saturation shader, place a second `CanvasModulate` node on that layer set to `Color(1,1,1,1)` (neutral white). Each CanvasLayer is an independent compositing context, so the neutral modulate on that layer overrides the world-layer desaturation for content on that layer. [VERIFY IN GODOT 4.6 DOCS — The interaction between CanvasModulate and multiple CanvasLayers in Godot 4.6 should be tested with a minimal scene. The D3D12 default on Windows in 4.6 and glow rework may have incidental effects on CanvasModulate compositing.]
+
+**Complete CanvasLayer stack:**
+
+| Layer | Name | Contents | Saturation exempt? |
+|---|---|---|---|
+| 0 | World Content | TileMap/TileMapLayer (environment), Sprite2D (NPCs, player), food photo TextureRects | No — this layer IS what the saturation lever controls |
+| 20 | HUD | Month indicator, follower counter, balance chip, phase indicators | Yes — `Color(1,1,1,1)` CanvasModulate |
+| 30 | Semantic Colors | Saldo Merah display, financial delta indicators, all state-semantic color text | Yes |
+| 40 | Text | Body text labels that must remain legible at all saturation states | Yes |
+| 50 | Notifications | Toast notification banners, badge reveal animations | Yes |
+| 90 | BANGKRUT Overlay | BANGKRUT badge, full-screen Game Over treatment | Yes |
+| 100 | White-Wash | Single ColorRect, white at full alpha, 1-frame milestone flash | Yes (not modulated) |
+
+**Layer 100 white-wash:** ColorRect is a child of the Layer 100 CanvasLayer node, not any world-space node. CanvasLayer ordering by index number is authoritative in Godot 4.x — higher index renders on top regardless of scene tree position. [VERIFY IN GODOT 4.6 DOCS — Confirm CanvasLayer z-ordering has not changed in 4.5 or 4.6.]
+
+**Scene tree placement:** All CanvasLayer nodes are direct children of the root persistent scene (game manager or main scene). Do not place CanvasLayer nodes inside restaurant scenes that load/unload — this would reset the overlay stack on scene transitions.
+
+---
+
+### 8.12 Asset Directory Structure
+
+```
+assets/
+├── art/
+│   ├── sprites/
+│   │   ├── npc_owner_01_idle_32x48.png      # one file per NPC + state
+│   │   ├── npc_chef_01_idle_32x48.png
+│   │   ├── npc_rival_01_idle_32x48.png
+│   │   ├── plr_avatar_01_24x24.png
+│   │   └── hand_hold_48x32.png
+│   ├── tiles/
+│   │   ├── unique/                           # 30 restaurant-specific tiles
+│   │   │   ├── warung-bu-siti/               # slug matches restaurant ID
+│   │   │   └── [restaurant-slug]/
+│   │   ├── shared/                           # 18 tier-shared tiles
+│   │   └── universal/                        # 10 tiles used by all tiers
+│   ├── tileset.tres                          # shared TileSet resource (all three pools)
+│   ├── food-photos/
+│   │   ├── warung-bu-siti/                   # one subdirectory per restaurant
+│   │   │   └── food_nasigoreng_t3_64.png
+│   │   └── _placeholder/                     # generic tiles for dev/testing
+│   ├── ui/
+│   │   └── glyphs/                           # colorblind safety glyph icons only
+│   │       ├── ui_glyph_down_default.png
+│   │       ├── ui_glyph_warn_default.png
+│   │       └── ui_glyph_check_default.png
+│   └── palette/
+│       ├── palette_reference.png             # 7×1px canonical strip
+│       └── cicip-catat.gpl                   # GIMP palette file for Aseprite
+├── fonts/
+│   ├── slot-a/
+│   │   ├── fnt_a_regular.ttf
+│   │   ├── fnt_a_bold.ttf
+│   │   └── slot_a.tres                       # Godot FontFile resource
+│   └── slot-b/
+│       ├── fnt_b_regular.ttf
+│       └── slot_b.tres
+└── shaders/
+    └── circle_mask.gdshader                  # Circle crop for player avatar TextureRect
+```
+
+**Food photo naming:** `[restaurant-slug]_[dish-slug]_[variant].png` inside the restaurant's subdirectory. The restaurant slug matches the subdirectory name exactly, enabling a data-driven texture loader to construct file paths from restaurant ID + dish ID without a lookup table.
+
+---
+
+### 8.13 Performance and Memory Constraints
+
+At this project's scale — a 2D roguelike with no dynamic lighting and ≤58 environment tiles — performance concerns are minimal on any PC/Steam hardware from the last decade. The figures below are practical upper bounds, not constraints requiring active optimization.
+
+**Texture atlases:** Recommend one atlas per tile pool: `256×256px` for universal + shared combined (28 tiles), `128×128px` per unique-tier subdirectory (≤10 tiles each). One atlas PNG can hold ~100 tiles at 48×48px; all 58 MVP tiles fit in two atlases. All atlas textures imported Lossless.
+
+**Sprite sheets vs. separate files:** At this scale (3–4 archetypes, ≤5 expression states each), the performance difference is immeasurable. Sprite sheets are preferred for workflow simplicity (one file import, one atlas entry in VRAM), not for frame-time impact.
+
+**MVP VRAM estimate:**
+
+| Asset category | Estimated VRAM |
+|---|---|
+| Environment tile atlases (~4 × 256×256 worst case) | ~1 MB |
+| Food photo tiles (~15 tiles × 64×64px) | ~0.25 MB |
+| NPC sprite sheets (4 sheets × ~160×96px) | ~0.25 MB |
+| UI glyph icons (minimal) | negligible |
+| **Total pixel art VRAM** | **~1.5 MB** |
+
+Fonts are system RAM (not VRAM): ~2 MB for two vector typefaces. Total memory well within any PC target. No atlas packing optimization or streaming needed for MVP.
+
+**CanvasModulate:** A single color change per phase transition is a single uniform update — effectively free. Eight CanvasLayers add approximately 8 compositing passes per frame; negligible overhead on PC at this scene complexity.
+
+**NPC breathing loop (2 frames):** Two AnimationPlayer nodes cycling a 2-keyframe animation at 0.75 fps are computationally free. Include without hesitation if the art direction calls for it.
+
+[VERIFY IN GODOT 4.6 DOCS — Godot 4.6 defaults to D3D12 on Windows. Confirm D3D12 does not introduce behavioral differences for CanvasModulate or CanvasLayer compositing compared to Vulkan. For development on Linux/macOS, the rendering backend differs and may produce slightly different compositing results — test on target platform before final art pass.]
 
 ---
 
