@@ -827,7 +827,348 @@ Each restaurant's object signature tile must contain one character-specific deta
 
 ## 7. UI/HUD Visual Direction
 
-[To be authored]
+*This section serves the Visual Identity Statement: the HUD is the feed. Every screen is a social media screen in a different state of use — browsing, composing, posting, reviewing stats. There is no separate overlay layer; UI and content are the same surface.*
+
+---
+
+### 7.1 HUD Composition Philosophy
+
+The game has no traditional HUD. There is no minimap, no floating health bar, no world-space overlay. All information is presented as panels, cards, counters, and feeds — the same containers a food blogger uses to organize their work.
+
+**Three persistent elements across all non-Game-Over phases:**
+
+1. **Month Indicator** — top-left, Zone A. Format: `BULAN 03 / 12`. Monospaced numerals (Slot B). Functions identically to a "post N of 12" story counter.
+2. **Follower Counter** — top-right, Zone A. Person-silhouette glyph prefix + numeral in Slot B, Aspal Malam. Never animated mid-phase; updates only at phase transitions.
+3. **Current Balance Chip** — persistent small format, bottom-right of Zone A or Zone C depending on phase. Format: `Rp 1.250.000` (Indonesian period separator). Slot B numerals in state-semantic color (Foto Hijau / Amber Kritis / Saldo Merah). Glyph prefix: `!` (warning) or `!!` (danger) prepended to `Rp`. In Bill Paying phase, superseded by the full-width Balance Panel (see 7.4).
+
+Everything else is phase-specific. Phase transitions are instantaneous swaps — no slide, no fade, no tween.
+
+**Three-zone screen layout:**
+
+- **Zone A (top bar, ~48px):** Month Indicator (left) + Follower Counter (right). Always visible.
+- **Zone B (main content area):** Phase-dependent. Restaurant grid, food photo + checklist, balance panel, or run archive. Occupies the vertical majority.
+- **Zone C (action bar, ~64px):** Phase-dependent. Primary action button(s). Bottom-anchored. Collapses if empty in a given phase.
+
+No zone contains decorative content. Dead space is not reserved.
+
+**Saturation lever — text exemption rule:** The global CanvasModulate desaturation shader applies to fills, borders, photo tints, and decorative elements only. All body text in Aspal Malam is exempt — text color values are set to full Aspal Malam regardless of the global saturation value. Functional text must remain legible in every phase state, including Bill Paying (15–25%) and Game Over (~5%). Implement by drawing all Label nodes on a separate CanvasLayer above the CanvasModulate node, or by restricting the modulate to content/environment CanvasLayers only.
+
+---
+
+### 7.2 Phase-by-Phase Screen Composition
+
+#### Planning Phase
+
+**Social media analog:** Feed browsing — scrolling a "to-visit" queue before deciding which restaurant to cover.
+
+**Zone A:** Month Indicator (left). Follower Counter (right).
+
+**Zone B:** Restaurant grid. 2-column layout, slight card height variation (±1 unit per card per Section 3 grid rules). **Each card contains: food photo thumbnail (TextureRect, fixed aspect ratio) + restaurant name label below the photo.** No cost data, no tier indicator on the card surface. The player chooses by feel and visual impression — the food photo is the primary decision-making signal. A "visited this run" indicator (small Foto Hijau checkmark badge, top-right of card, per Section 3 badge rules) appears only for previously visited restaurants. No other badge in Planning Phase. The grid is the only scrollable element in the game.
+
+**Zone C:** Budget overview strip (informational, not a button). Single row: `Sisa Bulan Ini: Rp [X]` in Slot B + state-semantic color. Gives overall budget position without per-card cost data. The `KUNJUNGI` button also lives in Zone C and activates only when a card is selected (selected state: 2px Notifikasi border on card container, thumbnail at immediate 1.05× scale).
+
+**Primary focal element:** Food photo on the selected card.
+
+**Hidden:** Checklist, balance panel, star control, badge overlays.
+
+---
+
+#### Visiting Phase
+
+**Social media analog:** Composing a review — at the location, evaluating the meal before writing.
+
+**Zone A:** Month Indicator (left). Follower Counter (right).
+
+**Zone B:** Two-column split (~55/45, left-heavy).
+- **Left column:** Food photo (TextureRect, full column height). 100% saturation, no decorative border — fills to the column edge. Restaurant name in Slot A body weight below the photo.
+- **Right column:** NPC panel (top ~20%, fixed TextureRect, optional 2-frame breathing) + Checklist panel (middle ~60%) + Overall Star Rating control (bottom ~20%, above Zone C).
+
+**Zone C:** `SELESAI EVALUASI` confirm button. Inactive until all checklist rows are confirmed AND the overall star rating is set.
+
+**Notification deferral rule:** Any notification banner received during Visiting Phase is queued and displayed at the Planning Phase of the following month — not mid-evaluation. Exception: game-state-critical events that end the current visit (restaurant closure mid-visit) surface immediately as an acknowledgment prompt.
+
+**Primary focal element:** Food photo, left column.
+
+**Hidden:** Restaurant grid, balance panel.
+
+---
+
+#### Publishing Phase
+
+**Social media analog:** Hitting "post" — content is about to go live.
+
+**Zone A:** Month Indicator (left). Follower Counter (right) — updates immediately after post confirmation.
+
+**Zone B:** Food photo from Visiting Phase fills Zone B entirely. Over it: a semi-transparent overlay (Aspal Malam at ~40% alpha) with a centered review card preview (2px corner radius, Layar Pagi fill) showing: star badge (overall rating), restaurant name, three-line checklist summary, estimated engagement range (`~[X]–[Y] tayangan`).
+
+At the moment of posting: 1-frame white-wash (full-screen ColorRect on CanvasLayer 100, white, alpha 1.0, one frame) fires then clears. The overlay disappears; the REVIEWED badge stamps onto the photo (2-frame pulse: 1.2× → 1.0×). Follower counter updates instantaneously.
+
+**Zone C:** Single button — `POST`. 48px height, Notifikasi fill, white Slot A label, all caps. Only interactive element on screen. Activates one frame after the review card preview renders (prevents accidental double-click on phase entry).
+
+**Primary focal element:** `POST` button, then badge stamp at confirmation.
+
+**Hidden:** Checklist, restaurant grid, budget strip.
+
+---
+
+#### Bill Paying Phase
+
+**Social media analog:** Monthly analytics and account management — checking numbers, paying dues.
+
+**Zone A:** Month Indicator (left). Follower Counter (right) — updated count from this month's posts.
+
+**Zone B:** Balance Panel, full width. Layout top-to-bottom:
+- Header: `RINGKASAN BULAN [X]` — Slot A, small, all caps, letter-spaced, Aspal Malam.
+- Gross income: `+ Rp [X]` — Slot B, Foto Hijau, medium.
+- Fixed costs (up to 4 rows, e.g. sewa, makan, transport): `– Rp [X]` — Slot B, Aspal Malam, medium.
+- Divider: 1px Aspal Malam horizontal rule (Saldo Merah tint if debt is active).
+- Net balance: `Rp [X]` — Slot B, state-semantic color, largest text on screen (~1/8 of screen height). Glyph prefix `!!` if danger, `!` if warning.
+
+Global CanvasModulate drops to 15–25% saturation on the main scene layer. All semantic financial colors (Foto Hijau, Amber Kritis, Saldo Merah) render on a separate UI CanvasLayer outside the modulate scope — full saturation retained. Effect: Zone A near-monochrome; balance numbers retain color. The persistent Balance Chip is hidden here.
+
+**Zone C:** `LANJUT` button. Inactive for 1.5 seconds from screen entry (Timer node; no countdown animation — button simply becomes clickable after delay). Prevents accidental skipping of financial information.
+
+**Primary focal element:** Net balance numeral.
+
+**Hidden:** Restaurant grid, food photo, checklist, star control.
+
+---
+
+#### Game Over / Main Menu
+
+**BANGKRUT (Game Over):** Full screen, near-monochrome (global saturation ~5%). Zone B center: final visit food photo (desaturated), overlaid by BANGKRUT badge at full size (see 7.6). Below photo: `BULAN [X] / 12` — Slot B, small, Aspal Malam. Below that: final follower count — Slot A, small. Zone C: `COBA LAGI` (Notifikasi fill) and `MENU UTAMA` (Notifikasi outline, no fill). Static. No animation.
+
+**Main Menu / Run Archive:** Full saturation. Zone B: vertical feed of past run cards — each card shows best food photo + final month reached + peak follower count + badge strip (including BANGKRUT if applicable). Past run cards at reduced saturation with +8° warm shift (archived-post treatment, Section 2.6) — signals concluded, not active or in-progress. At the top of the feed, above all archive cards: the `+` creation card (see 7.5). Zone A: game title header. Zone C: absent; all actions embedded in Zone B cards.
+
+**Primary focal element (BANGKRUT):** BANGKRUT badge, Saldo Merah, Zone B center.
+**Primary focal element (Main Menu):** `+` new run card, top of feed.
+
+---
+
+### 7.3 Checklist UI Design
+
+The checklist is the primary evaluation mechanic. It must feel like a review form native to a mobile food app while remaining legible without competing with the food photo in the adjacent column.
+
+**Layout:** Vertical list of pill rows in the right column's middle zone. Each row is one criterion: Rasa, Pelayanan, Kebersihan, Harga (expandable by equipment upgrades). All rows uniform — equal height (~36px), equal width (full right-column width minus 8px side padding). Label length does not affect row height.
+
+**Row anatomy (HBoxContainer):**
+- **Criterion label** (~60% width, left-aligned): Slot A, all lowercase (`rasa`, `pelayanan`), Aspal Malam. Lowercase signals creator voice — personal notation, not bureaucratic form.
+- **Criterion selector** (~40% width, right-aligned): 5-slot selector using filled/empty square glyphs (12×12px, 2px corner radius, matching shape grammar). Represents a per-criterion evaluation score that feeds the overall review quality calculation.
+
+**Row states:**
+
+| State | Background | Label opacity | Selector | Left border |
+|---|---|---|---|---|
+| Unrated | Layar Pagi | 70% Aspal Malam | All slots: outline, 40% Aspal Malam | None |
+| Active/Focus | Layar Pagi | 100% Aspal Malam | Hovered: filled Notifikasi | 2px Notifikasi vertical accent |
+| Confirmed | Layar Pagi + 8% Notifikasi tint | 100% Aspal Malam | Selected: filled Notifikasi | None |
+
+The 2px Notifikasi left-border on the active row also serves as the **keyboard focus indicator** for this element — Tab-navigating through checklist rows shows this border without a separate focus ring. Functional, not decorative.
+
+1px Aspal Malam bottom border on each row (except the last) is the only structural divider between rows.
+
+**Godot implementation:** VBoxContainer of instanced HBoxContainer scenes. State changes: set StyleBoxFlat properties on each row's PanelContainer (bg_color, border_width_left, border_color). Selector slots: TextureButton nodes with custom theme (12×12px normal/pressed texture swap). All transitions instantaneous — no AnimationPlayer.
+
+---
+
+### 7.3.1 Overall Star Rating Control
+
+**Position:** Below the checklist pill rows, above Zone C, within the right column. Separated from the checklist by a full-width 1px Aspal Malam rule.
+
+**Design:** A single row (48px height — slightly taller than criterion rows at 36px, signaling summary status) with label left + 5-star selector right. Uses a filled ★ star glyph (20×20px) rather than the square slot used in criterion rows — the star shape distinguishes the overall rating from criterion selectors at a glance.
+
+**Label:** `Penilaian Akhir` — Slot A, regular, Aspal Malam.
+
+**Star glyphs:** 5 × ★ shapes. Selected: filled Notifikasi. Unselected: outline, Aspal Malam 50% alpha. Hover: cumulative fill from left (1–5 highlights all stars up to and including hovered star).
+
+**Gate behavior:** `SELESAI EVALUASI` (Zone C) remains inactive until all checklist rows are confirmed AND this control has a set value (1–5).
+
+**Keyboard navigation:** Tab enters this control after the last checklist row. Arrow left/right adjusts star count. Enter confirms. Focus state: 2px Notifikasi outer border on the containing row (consistent with checklist active row pattern).
+
+*Design note:* The star rating is the player's editorial judgment, not a mechanical average of criterion scores. Two visits with identical checklist states can receive different star ratings — the gap is the reviewer's call. This serves Pillar 3 — the reviewer has judgment, not just a formula.
+
+---
+
+### 7.4 Financial Display Design
+
+**Persistent Balance Chip (Planning, Visiting, Publishing phases):** Small format in Zone A or Zone C. Format: `Rp 1.250.000`. Slot B, regular, state-semantic color. Glyph prefix `!!` (danger) or `!` (warning) prepended to `Rp`. Same face, weight, and color for both `Rp` prefix and numeral — no typographic separation.
+
+**Bill Paying large-format Balance Panel:** Net balance numeral is the largest text on screen (~1/8 screen height). Same Slot B face, same color rules, same glyph prefix logic. `custom_minimum_size` on the Label node prevents layout reflow when color state changes. Transition is instantaneous — no count-up animation. You refresh the screen and the number is different.
+
+**Debt state:** Negative balance: Saldo Merah numeral, `!!` prefix, Saldo Merah tint on divider line. No additional visual layer — existing semantic color system handles it.
+
+**Godot notes:** `horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT` on all financial Labels. `use_separate_yscale = false` on Slot B Labels to prevent numeral height inconsistency.
+
+---
+
+### 7.5 Interactive Element Design
+
+Notifikasi (255–265°) is the sole color for all interactive elements. No exceptions.
+
+**Standard button:**
+- Shape: 2px corner radius, min 80px width, 36px standard / 48px primary action height.
+- Resting: Notifikasi fill, white Slot A label, all caps, +0.05em tracking.
+- Hover: Notifikasi at ~85% brightness. Label white. No size change, no glow.
+- Pressed: Notifikasi at ~70% brightness. Instantaneous.
+- Disabled: Aspal Malam fill at 30% opacity, label at 50% opacity. Absence of blue = inactive.
+
+**Keyboard focus (buttons and non-checklist interactive elements):** A 2px outer rule drawn 2px outside the element's bounding box in full-opacity Aspal Malam. Distinct from the Notifikasi hover/press state. Implemented as a focused StyleBox variant with `expand_margin_all = 2` and `border_width_all = 2`. Explicitly exempt from the "no ornamental borders" rule in Section 3 — this is a functional accessibility element.
+
+**Card selection (Planning Phase):** 2px Notifikasi border on the card container + immediate 1.05× thumbnail scale. Keyboard and mouse selection share the same visual state — Tab cycles grid cards, Enter activates. No separate focus ring needed.
+
+**`POST` button (Publishing Phase):** Standard primary button. Activates one frame after review card preview renders. Only interactive element on screen — importance conveyed by context, not special treatment.
+
+**`+` new run card (Main Menu):** Top slot of the run archive feed. Same card proportions as archive cards but: Layar Pagi body, centered `+` glyph in Notifikasi (Slot A body weight), label below: `Mulai Blog Baru` — Slot A, regular, Aspal Malam. Diegetic label grounds the action in the social media metaphor while communicating roguelike restart. Hover: standard 2px Notifikasi border.
+
+---
+
+### 7.6 Badge and Overlay System
+
+Badges are flat, rectangular (2px corner radius), opaque digital stamps. Uniform shape across all types — differentiation through fill color, label text, and scale only. No starburst, no circle, no shield.
+
+**Base anatomy:** Fill color, 2px corner radius, white Slot A label in bold weight (the only context in the game where bold is used), all caps, +0.03em tracking. Width: content-driven, minimum 48px. Height: 20px standard, 28px for BANGKRUT.
+
+**Placement:** Always top-left or top-right of the parent card's photo area. Never centered, never bottom. Maximum two badges per card (one per corner). If a third state must be communicated, update an existing badge rather than adding a third.
+
+| Badge | Fill | Label | Position | Notes |
+|---|---|---|---|---|
+| REVIEWED | Aspal Malam | `REVIEWED` | Top-left | Applied after completed visit |
+| ★ [N] | Aspal Malam | `★ 3` | Top-right | Star glyph + numeral, white; overall rating display |
+| VIRAL | Notifikasi | `VIRAL` | Top-right | Replaces ★ badge position when active |
+| BANGKRUT | Saldo Merah | `BANGKRUT` | Zone B center | Game Over exception — see below |
+
+**Publishing Phase badge animation:** Frame 1: badge at 1.2× scale. Frame 2: badge at 1.0× (one frame later). Hard frame swap — 2-keyframe AnimationPlayer or `await get_tree().process_frame`. If VIRAL fires after REVIEWED: sequential pulses, one frame apart.
+
+**BANGKRUT — UI layer exception:** Occupies Zone B center as a full-panel-width badge. Rendered on CanvasLayer 10, above CanvasModulate (Layer 0). Full Saldo Merah at ~5% global saturation. No animation — static on Game Over screen load. The only saturated element in the game at this state.
+
+**Godot:** All badges: Label inside PanelContainer with StyleBoxFlat (fill color, 2px radius, no border). BANGKRUT on CanvasLayer 10. Star badge built from a single Label template with text set at runtime.
+
+---
+
+### 7.7 Typography Direction
+
+**Two typeface slots. Adding a third is a violation of this section.**
+
+**Slot A — Proportional Body Face:**
+All labels, criterion names, restaurant names, button labels, section headers, general UI text.
+
+Character: clean humanist or geometric sans-serif with mild warmth in the letterforms. Not a corporate grotesque. Should feel at home on an Indonesian food blog or product label — functional and legible with enough personality to feel human at small sizes.
+
+Weight: Regular for body text. Bold reserved exclusively for badge text. No italic. No medium/semibold.
+
+**Slot B — Monospaced Numerals:**
+All financial figures, month indicator, follower count, engagement numbers, star badge numeral.
+
+Character: tabular monospaced (all digits equal width — prevents lateral shift on value updates). Reads as receipt or banking interface, not terminal. Not a pixel font.
+
+**No pixel font.** A pixel font reads as retro-game aesthetic, contradicting the feed-native identity established in Section 1.
+
+**Size hierarchy:**
+
+| Element | Slot | Target size | Weight |
+|---|---|---|---|
+| Net balance numeral (Bill Paying) | B | ~48–64px | Regular |
+| BANGKRUT badge | A | 18px | Bold |
+| Section headers | A | 14px | Regular, all caps, +0.05em |
+| Restaurant name / criterion labels | A | 12–13px | Regular |
+| Button labels | A | 12px | Regular, all caps, +0.05em |
+| Month indicator / follower count | B | 12px | Regular |
+| Badge labels | A | 10px | Bold, all caps |
+| Persistent balance chip / engagement range | B | 11px | Regular |
+
+Minimum rendered text size: **10px** at final display resolution. If UI scaling is supported, all text scales linearly — no secondary small-text face.
+
+**Rendering (Godot 4.6):** Vector font rendering via built-in Label. `use_mipmaps = false`. Hinting: `HINTING_NORMAL` for Slot A, `HINTING_NONE` for Slot B (prevents numeral-width inconsistency). No outline on body text. 1px Aspal Malam outline on Slot A text appearing over variable photo content (e.g., restaurant name on card).
+
+**Independent creator marker:** Lowercase criterion labels (`rasa`, `pelayanan`) are the only departure from standard mixed-case or all-caps UI convention. This single typographic choice carries the system's personality without decorative treatment.
+
+---
+
+### 7.8 Notification and Milestone UI
+
+**Notification banner:**
+
+Position: enters from top edge of Zone B, settles at Zone B top, occupies full Zone B width as a ~40px strip. Exits back upward after 2.5 seconds. Full-width notification mimics a status-bar push notification covering the top of a phone feed.
+
+Anatomy: Layar Pagi background, 1px Aspal Malam bottom border, icon glyph (16×16px, left), message text (Slot A, 12px, Aspal Malam, ellipsis on overflow), optional numeral (Slot B, 12px, right-aligned).
+
+Examples:
+- `[person-glyph] +1.200 follower baru`
+- `[flame-glyph] Review kamu trending!`
+- `[bell-glyph] Bulan baru dimulai`
+
+Entry/exit: position offset -40px → 0px (enter), 0px → -40px (exit). Instantaneous (1-frame) — no tween. Social media notifications do not ease.
+
+**Deferral queue:** Notifications generated during Visiting Phase are queued. Queue flushes at the start of the next Planning Phase — banners fire sequentially at 2.5-second intervals before the restaurant grid becomes interactive. This preserves the focused evaluation mood of Section 2.2.
+
+**Godot implementation:** Panel in CanvasLayer 5 (above content, below BANGKRUT at Layer 10). Position and visibility set instantaneously. Timer drives the 2.5-second display duration. Queue is an Array of notification data dictionaries; flush logic runs at Planning Phase entry.
+
+---
+
+**Engagement updates:**
+
+Follower count in Zone A updates at phase transitions only, instantaneously. No counter rollup. You refresh the page and the number has changed.
+
+Engagement estimate in Publishing Phase preview (`~[X]–[Y] tayangan`) is a static calculated string — not live. Actual engagement reveals at the next Bill Paying income row.
+
+---
+
+**Milestone white-wash:**
+
+Triggered by: `POST` confirmation, and any defined milestone (first viral post, 12-month clear).
+
+Implementation: Full-viewport ColorRect on CanvasLayer 100 (highest layer). White, alpha 1.0. Frame 1: visible = true. Frame 2: visible = false. ~16ms at 60fps. Hard on, hard off — a seam, not a ceremony. Player's eye resets and finds the badge already placed, the follower count already updated.
+
+---
+
+**"Going Viral" event sequence:**
+
+1. `POST` pressed → 1-frame white-wash fires and clears
+2. Publishing Phase layout resumes with completed review card
+3. REVIEWED badge stamps (2-frame pulse, top-left)
+4. If viral: VIRAL badge stamps immediately after (2-frame pulse, top-right, one frame offset)
+5. Notification banner enters: `[flame-glyph] Review kamu trending!`
+6. Zone A follower counter updates (instantaneous)
+7. `LANJUT` becomes available in Zone C
+
+If not viral: step 4 skipped, step 5 shows neutral follower gain. No mandatory wait timers after step 7.
+
+---
+
+### Section 7 Consistency Check
+
+| Decision | Serves Feed Aesthetic? | Solo-dev Producible? |
+|---|---|---|
+| HUD is feed content, not overlay layer | Yes — every screen is a social media screen state | Yes — no separate HUD system needed |
+| Three persistent elements only (Month, Follower, Balance chip) | Yes — minimal chrome, content-forward | Yes — three static Label nodes |
+| Three-zone layout (A/B/C) | Yes — mirrors story/feed structure (header/content/action) | Yes — three VBoxContainer regions |
+| Restaurant cards: photo + name only | Yes — feed grid, content-first decision-making | Yes — minimal card content, no extra data nodes |
+| Budget strip in Zone C, not on each card | Yes — status bar shows context; cards show content | Yes — one Label row in Zone C |
+| Visiting Phase 55/45 column split (photo + checklist) | Yes — creator composing a review at location | Yes — HBoxContainer with two children |
+| Checklist: uniform pill rows, lowercase labels | Yes — review form native to mobile apps | Yes — VBoxContainer of instanced HBoxContainer scenes |
+| Three checklist row states via StyleBoxFlat swaps | Yes — form state clarity without animation | Yes — instantaneous property sets |
+| 2px Notifikasi left-border as checklist focus indicator | Yes — feed-app active-item pattern | Yes — StyleBoxFlat border_width_left = 2, functional |
+| Overall star rating: separate control below checklist | Yes — summary publish-rating is a distinct concept | Yes — one additional row scene |
+| ★ glyph distinguishes overall rating from square criterion selectors | Yes — star = publish-ready rating language | Yes — texture swap, same HBoxContainer pattern |
+| `SELESAI EVALUASI` gated on all checklist rows + star rating | Yes — prevents partial review submission | Yes — boolean check across row states + star control |
+| Zone C `LANJUT` delay (1.5s) in Bill Paying | Yes — forces reading the analytics dashboard | Yes — single Timer node |
+| Bill Paying: full Zone B balance panel, net balance ~1/8 screen height | Yes — analytics-screen-as-reckoning | Yes — Label with font_size override, VBoxContainer |
+| Saturation lever exempt from all body text | Yes — feed readability at all phase states | Yes — one CanvasLayer split |
+| Notifikasi blue = sole interactive color, no exceptions | Yes — platform color = interactive affordance | Yes — one color, one meaning |
+| Keyboard focus: 2px offset outer rule in Aspal Malam | Yes — functional, invisible to mouse users | Yes — separate focused StyleBox variant |
+| `POST` activates 1 frame after preview renders | Yes — prevents accidental double-click without breaking flow | Yes — single deferred call or `await process_frame` |
+| `+` card labeled `Mulai Blog Baru` | Yes — creation-language native to the social media metaphor | Yes — string constant on the card Label |
+| Archive cards at reduced saturation + warm shift | Yes — "past, not active" archived-post treatment | Yes — semi-transparent warm tint overlay |
+| BANGKRUT on CanvasLayer 10, above CanvasModulate | Yes — full red isolation from global desaturation | Yes — one additional CanvasLayer node |
+| Badge: flat 2px radius rectangle, white label, bold | Yes — digital overlay stamp, not physical | Yes — one StyleBoxFlat template per badge type |
+| 2-frame badge pulse only (1.2× → 1.0×) | Yes — digital stamp "thunk" at moment of posting | Yes — 2-keyframe AnimationPlayer or `await process_frame` |
+| Notifications deferred from Visiting Phase; flushed at Planning | Yes — "you check notifications when you pick up your phone" | Yes — Array queue + flush at phase transition |
+| Follower count updates instantaneous at phase transition | Yes — "you refreshed the page" model | Yes — set Label text at transition, no tween |
+| Engagement estimate: static string, not live counter | Yes — analytics report, not live feed | Yes — calculated once, displayed as string |
+| White-wash: 1-frame ColorRect on Layer 100 | Yes — photographic overexposure at peak moment | Yes — single ColorRect node, two-line toggle |
+| Two typeface slots only (Slot A proportional + Slot B monospaced) | Yes — social media uses one or two system fonts | Yes — two font resources, theme-applied |
+| No pixel font | Yes — feed-native identity, not retro-game | Yes — eliminates pixel font tooling entirely |
+| Bold weight only on badge labels | Yes — badges are emphasis objects; body is reading text | Yes — single FontVariation weight override |
 
 ---
 
